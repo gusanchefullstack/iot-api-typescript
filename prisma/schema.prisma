@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  sites       Site[]
+}
+
+model Site {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  description     String?
+  location        String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  organization    Organization    @relation(fields: [organizationId], references: [id])
+  organizationId  String          @db.ObjectId
+  measuringPoints MeasuringPoint[]
+}
+
+model MeasuringPoint {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  coordinates Json?    // Para almacenar latitud y longitud
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  site        Site     @relation(fields: [siteId], references: [id])
+  siteId      String   @db.ObjectId
+  boards      Board[]
+}
+
+model Board {
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  serialNumber     String?       @unique
+  firmwareVersion  String?
+  description      String?
+  status           String?       // active, inactive, maintenance
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  measuringPoint   MeasuringPoint @relation(fields: [measuringPointId], references: [id])
+  measuringPointId String        @db.ObjectId
+  sensors          Sensor[]
+}
+
+model Sensor {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  type        String   // temperature, humidity, pressure, etc.
+  unit        String?  // °C, %, hPa, etc.
+  minValue    Float?
+  maxValue    Float?
+  description String?
+  status      String?  // active, inactive, maintenance
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  board       Board    @relation(fields: [boardId], references: [id])
+  boardId     String   @db.ObjectId
+}
