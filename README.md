@@ -11,7 +11,7 @@ API RESTful para gestión de dispositivos IoT desarrollada con Express.js y Type
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/YOUR_USERNAME/iot-api-typescript.git
+git clone https://github.com/gusanchefullstack/iot-api-typescript.git
 cd iot-api-typescript
 
 # Instalar dependencias
