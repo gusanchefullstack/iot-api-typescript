@@ -47,6 +47,13 @@ La API sigue una jerarquía de entidades:
 
 Cada nivel puede tener cero o más entidades del nivel siguiente.
 
+#### Tipos de sensores disponibles
+
+Los sensores pueden ser de los siguientes tipos:
+- `TEMPERATURE` - Sensor de temperatura
+- `HUMIDITY` - Sensor de humedad
+- `PH` - Sensor de pH
+
 ### Comandos de Prisma
 
 ```bash
@@ -105,6 +112,7 @@ npm start
 
 ### Sensores
 - `GET /api/sensors` - Listar todos los sensores
+- `GET /api/sensors/types` - Obtener los tipos de sensores disponibles
 - `GET /api/sensors/board/:boardId` - Listar sensores de una placa
 - `GET /api/sensors/:id` - Obtener un sensor por ID
 - `POST /api/sensors` - Crear un nuevo sensor

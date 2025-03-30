@@ -23,14 +23,14 @@ model Organization {
 }
 
 model Site {
-  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
   name            String
   description     String?
   location        String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  organization    Organization    @relation(fields: [organizationId], references: [id])
-  organizationId  String          @db.ObjectId
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  organization    Organization     @relation(fields: [organizationId], references: [id])
+  organizationId  String           @db.ObjectId
   measuringPoints MeasuringPoint[]
 }
 
@@ -38,7 +38,7 @@ model MeasuringPoint {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
-  coordinates Json?    // Para almacenar latitud y longitud
+  coordinates Json? // Para almacenar latitud y longitud
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   site        Site     @relation(fields: [siteId], references: [id])
@@ -47,30 +47,36 @@ model MeasuringPoint {
 }
 
 model Board {
-  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
   name             String
-  serialNumber     String?       @unique
+  serialNumber     String?        @unique
   firmwareVersion  String?
   description      String?
-  status           String?       // active, inactive, maintenance
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  status           String? // active, inactive, maintenance
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
   measuringPoint   MeasuringPoint @relation(fields: [measuringPointId], references: [id])
-  measuringPointId String        @db.ObjectId
+  measuringPointId String         @db.ObjectId
   sensors          Sensor[]
 }
 
+enum SensorType {
+  TEMPERATURE
+  HUMIDITY
+  PH
+}
+
 model Sensor {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
   name        String
-  type        String   // temperature, humidity, pressure, etc.
-  unit        String?  // °C, %, hPa, etc.
+  type        SensorType // Usando el enum para restringir los valores
+  unit        String? // °C, %, etc.
   minValue    Float?
   maxValue    Float?
   description String?
-  status      String?  // active, inactive, maintenance
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  board       Board    @relation(fields: [boardId], references: [id])
-  boardId     String   @db.ObjectId
+  status      String? // active, inactive, maintenance
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  board       Board      @relation(fields: [boardId], references: [id])
+  boardId     String     @db.ObjectId
 }

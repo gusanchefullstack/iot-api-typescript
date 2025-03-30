@@ -6,6 +6,9 @@ const router = Router();
 // Obtener todos los sensores
 router.get('/', sensorController.getAllSensors);
 
+// Obtener los tipos de sensores disponibles
+router.get('/types', sensorController.getSensorTypes);
+
 // Obtener todos los sensores de una placa
 router.get('/board/:boardId', sensorController.getSensorsByBoard);
 
