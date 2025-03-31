@@ -86,7 +86,7 @@ export const updateOrganization = async (req: Request, res: Response) => {
 
     res.json(organization);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return res.status(404).json({ message: 'Organización no encontrada' });
     }
     res.status(500).json({ message: 'Error al actualizar la organización' });
@@ -107,7 +107,7 @@ export const deleteOrganization = async (req: Request, res: Response) => {
 
     res.json({ message: 'Organización eliminada exitosamente' });
   } catch (error) {
-    if (error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return res.status(404).json({ message: 'Organización no encontrada' });
     }
     res.status(500).json({ message: 'Error al eliminar la organización' });

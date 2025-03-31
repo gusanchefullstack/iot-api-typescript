@@ -1,5 +1,13 @@
 import { Router } from 'express';
-import * as organizationController from '../controllers/organizationController';
+import {
+  getAllOrganizations,
+  getOrganizationById,
+  createOrganization,
+  updateOrganization,
+  deleteOrganization,
+} from '../controllers/organizationController';
+import { organizationSchema, organizationUpdateSchema } from '../schemas/organizationSchema';
+import { validateSchema } from '../middleware/validateSchema';
 
 const router = Router();
 
@@ -7,11 +15,11 @@ const router = Router();
  * @swagger
  * /organizations:
  *   get:
- *     summary: Get all organizations
+ *     summary: Obtener todas las organizaciones
  *     tags: [Organizations]
  *     responses:
  *       200:
- *         description: List of organizations
+ *         description: Lista de organizaciones
  *         content:
  *           application/json:
  *             schema:
@@ -19,236 +27,121 @@ const router = Router();
  *               items:
  *                 $ref: '#/components/schemas/Organization'
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
-router.get('/', organizationController.getAllOrganizations);
+router.get('/', getAllOrganizations);
 
 /**
  * @swagger
  * /organizations/{id}:
  *   get:
- *     summary: Get an organization by ID
+ *     summary: Obtener una organización por ID
  *     tags: [Organizations]
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: Organization ID
+ *         description: ID de la organización
  *     responses:
  *       200:
- *         description: Organization details
+ *         description: Organización encontrada
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Organization'
  *       400:
- *         description: Invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: ID inválido
  *       404:
- *         description: Organization not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFound'
+ *         description: Organización no encontrada
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
-router.get('/:id', organizationController.getOrganizationById);
+router.get('/:id', getOrganizationById);
 
 /**
  * @swagger
  * /organizations:
  *   post:
- *     summary: Create a new organization
+ *     summary: Crear una nueva organización
  *     tags: [Organizations]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *               - country
- *               - state
- *               - city
- *               - address
- *               - zipcode
- *             properties:
- *               name:
- *                 type: string
- *                 description: Organization name
- *                 maxLength: 250
- *               country:
- *                 type: string
- *                 description: Organization country
- *                 maxLength: 100
- *               state:
- *                 type: string
- *                 description: Organization state/province
- *                 maxLength: 100
- *               city:
- *                 type: string
- *                 description: Organization city
- *                 maxLength: 100
- *               address:
- *                 type: string
- *                 description: Organization address
- *                 maxLength: 250
- *               zipcode:
- *                 type: string
- *                 description: Organization zip code
- *                 maxLength: 20
+ *             $ref: '#/components/schemas/OrganizationInput'
  *     responses:
  *       201:
- *         description: Organization created successfully
+ *         description: Organización creada
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Organization'
  *       400:
- *         description: Invalid data
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: Datos inválidos
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
-router.post('/', organizationController.createOrganization);
+router.post('/', validateSchema(organizationSchema), createOrganization);
 
 /**
  * @swagger
  * /organizations/{id}:
  *   put:
- *     summary: Update an organization
+ *     summary: Actualizar una organización
  *     tags: [Organizations]
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: Organization ID
+ *         description: ID de la organización
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 description: Organization name
- *                 maxLength: 250
- *               country:
- *                 type: string
- *                 description: Organization country
- *                 maxLength: 100
- *               state:
- *                 type: string
- *                 description: Organization state/province
- *                 maxLength: 100
- *               city:
- *                 type: string
- *                 description: Organization city
- *                 maxLength: 100
- *               address:
- *                 type: string
- *                 description: Organization address
- *                 maxLength: 250
- *               zipcode:
- *                 type: string
- *                 description: Organization zip code
- *                 maxLength: 20
+ *             $ref: '#/components/schemas/OrganizationUpdateInput'
  *     responses:
  *       200:
- *         description: Organization updated successfully
+ *         description: Organización actualizada
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Organization'
  *       400:
- *         description: Invalid data
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: Datos inválidos
  *       404:
- *         description: Organization not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFound'
+ *         description: Organización no encontrada
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
-router.put('/:id', organizationController.updateOrganization);
+router.put('/:id', validateSchema(organizationUpdateSchema), updateOrganization);
 
 /**
  * @swagger
  * /organizations/{id}:
  *   delete:
- *     summary: Delete an organization
+ *     summary: Eliminar una organización
  *     tags: [Organizations]
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: Organization ID
+ *         description: ID de la organización
  *     responses:
  *       200:
- *         description: Organization deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Organization successfully deleted
- *       400:
- *         description: Invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: Organización eliminada
  *       404:
- *         description: Organization not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFound'
+ *         description: Organización no encontrada
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
-router.delete('/:id', organizationController.deleteOrganization);
+router.delete('/:id', deleteOrganization);
 
 export default router; 
