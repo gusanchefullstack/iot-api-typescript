@@ -139,6 +139,67 @@ npm start
 └── tsconfig.json           # Configuración de TypeScript
 ```
 
+## Validaciones
+
+La API implementa validaciones robustas utilizando express-validator para garantizar la integridad de los datos:
+
+### Validaciones comunes a todas las entidades
+- Validación de MongoDB ObjectId para todos los parámetros de ID
+- Limitación de longitud (máximo 250 caracteres) para campos como nombre, descripción, etc.
+
+### Validaciones específicas por entidad
+
+#### Organizaciones
+- Campo `name` requerido
+- Campo `description` opcional con longitud máxima de 250 caracteres
+
+#### Sitios
+- Campo `name` requerido
+- Campos `description` y `location` opcionales con longitud máxima de 250 caracteres
+- Campo `organizationId` requerido y debe ser un MongoDB ObjectId válido
+
+#### Puntos de Medición
+- Campo `name` requerido
+- Campo `description` opcional con longitud máxima de 250 caracteres
+- Campo `coordinates` opcional, debe ser un objeto con:
+  - Propiedades `latitude` y `longitude` requeridas y numéricas
+  - Latitud debe estar entre -90 y 90 grados
+  - Longitud debe estar entre -180 y 180 grados
+- Campo `siteId` requerido y debe ser un MongoDB ObjectId válido
+
+#### Placas
+- Campo `name` requerido
+- Campos `serialNumber`, `firmwareVersion` y `description` opcionales con longitud máxima de 250 caracteres
+- Campo `status` opcional, limitado a valores: 'active', 'inactive', 'maintenance'
+- Campo `measuringPointId` requerido y debe ser un MongoDB ObjectId válido
+
+#### Sensores
+- Campo `name` requerido
+- Campo `type` requerido, limitado a los valores definidos en SensorType (TEMPERATURE, HUMIDITY, PH)
+- Campo `unit` opcional con longitud máxima de 250 caracteres
+- Campos `minValue` y `maxValue` opcionales, deben ser números (maxValue debe ser mayor que minValue)
+- Campo `description` opcional con longitud máxima de 250 caracteres
+- Campo `status` opcional, limitado a valores: 'active', 'inactive', 'maintenance'
+- Campo `boardId` requerido y debe ser un MongoDB ObjectId válido
+
+### Respuestas de error
+
+Las validaciones fallidas devuelven respuestas con código de estado 400 (Bad Request) y un objeto JSON con los detalles de los errores:
+
+```json
+{
+  "errors": [
+    {
+      "type": "field",
+      "value": "valor-inválido",
+      "msg": "Mensaje de error descriptivo",
+      "path": "nombre-del-campo",
+      "location": "body"
+    }
+  ]
+}
+```
+
 ## Licencia
 
 ISC 
