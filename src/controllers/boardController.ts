@@ -7,8 +7,8 @@ export const getAllBoards = async (req: Request, res: Response) => {
     const boards = await prisma.board.findMany();
     res.json(boards);
   } catch (error) {
-    console.error('Error al obtener placas:', error);
-    res.status(500).json({ error: 'Error al obtener placas' });
+    console.error('Error getting boards:', error);
+    res.status(500).json({ error: 'Error getting boards' });
   }
 };
 
@@ -23,8 +23,8 @@ export const getBoardsByMeasuringPoint = async (req: Request, res: Response) => 
     
     res.json(boards);
   } catch (error) {
-    console.error('Error al obtener placas:', error);
-    res.status(500).json({ error: 'Error al obtener placas' });
+    console.error('Error getting boards by measuring point:', error);
+    res.status(500).json({ error: 'Error getting boards by measuring point' });
   }
 };
 
@@ -42,13 +42,13 @@ export const getBoardById = async (req: Request, res: Response) => {
     });
 
     if (!board) {
-      return res.status(404).json({ error: 'Placa no encontrada' });
+      return res.status(404).json({ error: 'Board not found' });
     }
 
     res.json(board);
   } catch (error) {
-    console.error('Error al obtener la placa:', error);
-    res.status(500).json({ error: 'Error al obtener la placa' });
+    console.error('Error getting board:', error);
+    res.status(500).json({ error: 'Error getting board' });
   }
 };
 
@@ -59,7 +59,7 @@ export const createBoard = async (req: Request, res: Response) => {
     
     if (!name || !measuringPointId) {
       return res.status(400).json({ 
-        error: 'El nombre de la placa y el ID del punto de medición son requeridos' 
+        error: 'Board name and measuring point ID are required' 
       });
     }
 
@@ -69,7 +69,7 @@ export const createBoard = async (req: Request, res: Response) => {
     });
 
     if (!measuringPointExists) {
-      return res.status(404).json({ error: 'El punto de medición no existe' });
+      return res.status(404).json({ error: 'Measuring point not found' });
     }
 
     const board = await prisma.board.create({
@@ -87,8 +87,8 @@ export const createBoard = async (req: Request, res: Response) => {
 
     res.status(201).json(board);
   } catch (error) {
-    console.error('Error al crear la placa:', error);
-    res.status(500).json({ error: 'Error al crear la placa' });
+    console.error('Error creating board:', error);
+    res.status(500).json({ error: 'Error creating board' });
   }
 };
 
@@ -97,9 +97,13 @@ export const updateBoard = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, serialNumber, firmwareVersion, description, status } = req.body;
+    
+    const boardExists = await prisma.board.findUnique({
+      where: { id }
+    });
 
-    if (!name) {
-      return res.status(400).json({ error: 'El nombre de la placa es requerido' });
+    if (!boardExists) {
+      return res.status(404).json({ error: 'Board not found' });
     }
 
     const updatedBoard = await prisma.board.update({
@@ -115,8 +119,8 @@ export const updateBoard = async (req: Request, res: Response) => {
 
     res.json(updatedBoard);
   } catch (error) {
-    console.error('Error al actualizar la placa:', error);
-    res.status(500).json({ error: 'Error al actualizar la placa' });
+    console.error('Error updating board:', error);
+    res.status(500).json({ error: 'Error updating board' });
   }
 };
 
@@ -124,14 +128,22 @@ export const updateBoard = async (req: Request, res: Response) => {
 export const deleteBoard = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    
+    const boardExists = await prisma.board.findUnique({
+      where: { id }
+    });
+
+    if (!boardExists) {
+      return res.status(404).json({ error: 'Board not found' });
+    }
 
     await prisma.board.delete({
       where: { id }
     });
 
-    res.json({ message: 'Placa eliminada correctamente' });
+    res.json({ message: 'Board successfully deleted' });
   } catch (error) {
-    console.error('Error al eliminar la placa:', error);
-    res.status(500).json({ error: 'Error al eliminar la placa' });
+    console.error('Error deleting board:', error);
+    res.status(500).json({ error: 'Error deleting board' });
   }
 }; 

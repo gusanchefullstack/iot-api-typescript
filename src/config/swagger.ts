@@ -328,6 +328,12 @@ const options: swaggerJSDoc.Options = {
             }
           }
         },
+        NotFound: {
+          type: 'object',
+          properties: {
+            error: { type: 'string', example: 'Resource not found' }
+          }
+        }
       },
     },
   },
