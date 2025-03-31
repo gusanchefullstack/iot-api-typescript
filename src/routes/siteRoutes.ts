@@ -2,8 +2,7 @@ import { Router } from 'express';
 import * as siteController from '../controllers/siteController';
 import {
   createSiteValidation,
-  updateSiteValidation,
-  validateMongoId
+  updateSiteValidation
 } from '../middleware/siteValidation';
 
 const router = Router();
@@ -67,7 +66,7 @@ router.get('/', siteController.getAllSites);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/organization/:organizationId', validateMongoId('organizationId'), siteController.getSitesByOrganization);
+router.get('/organization/:organizationId', siteController.getSitesByOrganization);
 
 /**
  * @swagger
@@ -108,7 +107,7 @@ router.get('/organization/:organizationId', validateMongoId('organizationId'), s
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', validateMongoId(), siteController.getSiteById);
+router.get('/:id', siteController.getSiteById);
 
 /**
  * @swagger
@@ -227,7 +226,7 @@ router.post('/', createSiteValidation, siteController.createSite);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', validateMongoId(), updateSiteValidation, siteController.updateSite);
+router.put('/:id', updateSiteValidation, siteController.updateSite);
 
 /**
  * @swagger
@@ -272,6 +271,6 @@ router.put('/:id', validateMongoId(), updateSiteValidation, siteController.updat
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', validateMongoId(), siteController.deleteSite);
+router.delete('/:id', siteController.deleteSite);
 
 export default router; 

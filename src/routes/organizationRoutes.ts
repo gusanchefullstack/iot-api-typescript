@@ -2,8 +2,7 @@ import { Router } from 'express';
 import * as organizationController from '../controllers/organizationController';
 import {
   createOrganizationValidation,
-  updateOrganizationValidation,
-  validateMongoId
+  updateOrganizationValidation
 } from '../middleware/organizationValidation';
 
 const router = Router();
@@ -43,9 +42,8 @@ router.get('/', organizationController.getAllOrganizations);
  *         name: id
  *         schema:
  *           type: string
- *           pattern: '^[0-9a-fA-F]{24}$'
  *         required: true
- *         description: ID de la organización (MongoDB ObjectId)
+ *         description: ID de la organización
  *     responses:
  *       200:
  *         description: Detalles de la organización
@@ -54,7 +52,7 @@ router.get('/', organizationController.getAllOrganizations);
  *             schema:
  *               $ref: '#/components/schemas/Organization'
  *       400:
- *         description: ID con formato inválido
+ *         description: ID inválido
  *         content:
  *           application/json:
  *             schema:
@@ -72,7 +70,7 @@ router.get('/', organizationController.getAllOrganizations);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', validateMongoId(), organizationController.getOrganizationById);
+router.get('/:id', organizationController.getOrganizationById);
 
 /**
  * @swagger
@@ -130,9 +128,8 @@ router.post('/', createOrganizationValidation, organizationController.createOrga
  *         name: id
  *         schema:
  *           type: string
- *           pattern: '^[0-9a-fA-F]{24}$'
  *         required: true
- *         description: ID de la organización (MongoDB ObjectId)
+ *         description: ID de la organización
  *     requestBody:
  *       required: true
  *       content:
@@ -156,7 +153,7 @@ router.post('/', createOrganizationValidation, organizationController.createOrga
  *             schema:
  *               $ref: '#/components/schemas/Organization'
  *       400:
- *         description: Datos inválidos o ID con formato incorrecto
+ *         description: Datos inválidos
  *         content:
  *           application/json:
  *             schema:
@@ -174,7 +171,7 @@ router.post('/', createOrganizationValidation, organizationController.createOrga
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', validateMongoId(), updateOrganizationValidation, organizationController.updateOrganization);
+router.put('/:id', updateOrganizationValidation, organizationController.updateOrganization);
 
 /**
  * @swagger
@@ -187,9 +184,8 @@ router.put('/:id', validateMongoId(), updateOrganizationValidation, organization
  *         name: id
  *         schema:
  *           type: string
- *           pattern: '^[0-9a-fA-F]{24}$'
  *         required: true
- *         description: ID de la organización (MongoDB ObjectId)
+ *         description: ID de la organización
  *     responses:
  *       200:
  *         description: Organización eliminada exitosamente
@@ -202,7 +198,7 @@ router.put('/:id', validateMongoId(), updateOrganizationValidation, organization
  *                   type: string
  *                   example: Organización eliminada correctamente
  *       400:
- *         description: ID con formato incorrecto
+ *         description: ID inválido
  *         content:
  *           application/json:
  *             schema:
@@ -220,6 +216,6 @@ router.put('/:id', validateMongoId(), updateOrganizationValidation, organization
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', validateMongoId(), organizationController.deleteOrganization);
+router.delete('/:id', organizationController.deleteOrganization);
 
 export default router; 

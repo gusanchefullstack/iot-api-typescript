@@ -2,8 +2,7 @@ import { Router } from 'express';
 import * as boardController from '../controllers/boardController';
 import {
   createBoardValidation,
-  updateBoardValidation,
-  validateMongoId
+  updateBoardValidation
 } from '../middleware/boardValidation';
 
 const router = Router();
@@ -67,7 +66,7 @@ router.get('/', boardController.getAllBoards);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/measuring-point/:measuringPointId', validateMongoId('measuringPointId'), boardController.getBoardsByMeasuringPoint);
+router.get('/measuring-point/:measuringPointId', boardController.getBoardsByMeasuringPoint);
 
 /**
  * @swagger
@@ -108,7 +107,7 @@ router.get('/measuring-point/:measuringPointId', validateMongoId('measuringPoint
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', validateMongoId(), boardController.getBoardById);
+router.get('/:id', boardController.getBoardById);
 
 /**
  * @swagger
@@ -243,7 +242,7 @@ router.post('/', createBoardValidation, boardController.createBoard);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', validateMongoId(), updateBoardValidation, boardController.updateBoard);
+router.put('/:id', updateBoardValidation, boardController.updateBoard);
 
 /**
  * @swagger
@@ -288,6 +287,6 @@ router.put('/:id', validateMongoId(), updateBoardValidation, boardController.upd
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', validateMongoId(), boardController.deleteBoard);
+router.delete('/:id', boardController.deleteBoard);
 
 export default router; 

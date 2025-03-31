@@ -2,8 +2,7 @@ import { Router } from 'express';
 import * as measuringPointController from '../controllers/measuringPointController';
 import {
   createMeasuringPointValidation,
-  updateMeasuringPointValidation,
-  validateMongoId
+  updateMeasuringPointValidation
 } from '../middleware/measuringPointValidation';
 
 const router = Router();
@@ -67,7 +66,7 @@ router.get('/', measuringPointController.getAllMeasuringPoints);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/site/:siteId', validateMongoId('siteId'), measuringPointController.getMeasuringPointsBySite);
+router.get('/site/:siteId', measuringPointController.getMeasuringPointsBySite);
 
 /**
  * @swagger
@@ -108,7 +107,7 @@ router.get('/site/:siteId', validateMongoId('siteId'), measuringPointController.
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', validateMongoId(), measuringPointController.getMeasuringPointById);
+router.get('/:id', measuringPointController.getMeasuringPointById);
 
 /**
  * @swagger
@@ -237,7 +236,7 @@ router.post('/', createMeasuringPointValidation, measuringPointController.create
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', validateMongoId(), updateMeasuringPointValidation, measuringPointController.updateMeasuringPoint);
+router.put('/:id', updateMeasuringPointValidation, measuringPointController.updateMeasuringPoint);
 
 /**
  * @swagger
@@ -282,6 +281,6 @@ router.put('/:id', validateMongoId(), updateMeasuringPointValidation, measuringP
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', validateMongoId(), measuringPointController.deleteMeasuringPoint);
+router.delete('/:id', measuringPointController.deleteMeasuringPoint);
 
 export default router; 

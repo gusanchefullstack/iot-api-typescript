@@ -2,8 +2,7 @@ import { Router } from 'express';
 import * as sensorController from '../controllers/sensorController';
 import {
   createSensorValidation,
-  updateSensorValidation,
-  validateMongoId
+  updateSensorValidation
 } from '../middleware/sensorValidation';
 
 const router = Router();
@@ -92,7 +91,7 @@ router.get('/types', sensorController.getSensorTypes);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/board/:boardId', validateMongoId('boardId'), sensorController.getSensorsByBoard);
+router.get('/board/:boardId', sensorController.getSensorsByBoard);
 
 /**
  * @swagger
@@ -133,7 +132,7 @@ router.get('/board/:boardId', validateMongoId('boardId'), sensorController.getSe
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', validateMongoId(), sensorController.getSensorById);
+router.get('/:id', sensorController.getSensorById);
 
 /**
  * @swagger
@@ -281,7 +280,7 @@ router.post('/', createSensorValidation, sensorController.createSensor);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', validateMongoId(), updateSensorValidation, sensorController.updateSensor);
+router.put('/:id', updateSensorValidation, sensorController.updateSensor);
 
 /**
  * @swagger
@@ -326,6 +325,6 @@ router.put('/:id', validateMongoId(), updateSensorValidation, sensorController.u
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', validateMongoId(), sensorController.deleteSensor);
+router.delete('/:id', sensorController.deleteSensor);
 
 export default router; 
