@@ -26,14 +26,28 @@ export const createMeasuringPointValidation: RequestHandler[] = [
     .optional()
     .isObject().withMessage('Las coordenadas deben ser un objeto válido')
     .custom((value) => {
-      if (value) {
-        if (typeof value.latitude !== 'undefined' && typeof value.latitude !== 'number') {
-          throw new Error('La latitud debe ser un número');
-        }
-        if (typeof value.longitude !== 'undefined' && typeof value.longitude !== 'number') {
-          throw new Error('La longitud debe ser un número');
-        }
+      if (!value) return true;
+      
+      // Validar que tenga las propiedades latitude y longitude
+      if (typeof value.latitude === 'undefined' || typeof value.longitude === 'undefined') {
+        throw new Error('Las coordenadas deben tener latitud y longitud');
       }
+      
+      // Validar que latitude y longitude sean números
+      if (typeof value.latitude !== 'number' || typeof value.longitude !== 'number') {
+        throw new Error('La latitud y longitud deben ser números');
+      }
+      
+      // Validar rango de latitud (-90 a 90)
+      if (value.latitude < -90 || value.latitude > 90) {
+        throw new Error('La latitud debe estar entre -90 y 90 grados');
+      }
+      
+      // Validar rango de longitud (-180 a 180)
+      if (value.longitude < -180 || value.longitude > 180) {
+        throw new Error('La longitud debe estar entre -180 y 180 grados');
+      }
+      
       return true;
     }),
   body('siteId')
@@ -59,14 +73,28 @@ export const updateMeasuringPointValidation: RequestHandler[] = [
     .optional()
     .isObject().withMessage('Las coordenadas deben ser un objeto válido')
     .custom((value) => {
-      if (value) {
-        if (typeof value.latitude !== 'undefined' && typeof value.latitude !== 'number') {
-          throw new Error('La latitud debe ser un número');
-        }
-        if (typeof value.longitude !== 'undefined' && typeof value.longitude !== 'number') {
-          throw new Error('La longitud debe ser un número');
-        }
+      if (!value) return true;
+      
+      // Validar que tenga las propiedades latitude y longitude
+      if (typeof value.latitude === 'undefined' || typeof value.longitude === 'undefined') {
+        throw new Error('Las coordenadas deben tener latitud y longitud');
       }
+      
+      // Validar que latitude y longitude sean números
+      if (typeof value.latitude !== 'number' || typeof value.longitude !== 'number') {
+        throw new Error('La latitud y longitud deben ser números');
+      }
+      
+      // Validar rango de latitud (-90 a 90)
+      if (value.latitude < -90 || value.latitude > 90) {
+        throw new Error('La latitud debe estar entre -90 y 90 grados');
+      }
+      
+      // Validar rango de longitud (-180 a 180)
+      if (value.longitude < -180 || value.longitude > 180) {
+        throw new Error('La longitud debe estar entre -180 y 180 grados');
+      }
+      
       return true;
     }),
   handleValidationErrors
