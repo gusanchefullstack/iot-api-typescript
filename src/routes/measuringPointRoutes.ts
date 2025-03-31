@@ -1,9 +1,5 @@
 import { Router } from 'express';
 import * as measuringPointController from '../controllers/measuringPointController';
-import {
-  createMeasuringPointValidation,
-  updateMeasuringPointValidation
-} from '../middleware/measuringPointValidation';
 
 const router = Router();
 
@@ -11,11 +7,11 @@ const router = Router();
  * @swagger
  * /measuring-points:
  *   get:
- *     summary: Obtener todos los puntos de medición
+ *     summary: Get all measuring points
  *     tags: [Measuring Points]
  *     responses:
  *       200:
- *         description: Lista de puntos de medición
+ *         description: List of measuring points
  *         content:
  *           application/json:
  *             schema:
@@ -23,7 +19,7 @@ const router = Router();
  *               items:
  *                 $ref: '#/components/schemas/MeasuringPoint'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -35,7 +31,7 @@ router.get('/', measuringPointController.getAllMeasuringPoints);
  * @swagger
  * /measuring-points/site/{siteId}:
  *   get:
- *     summary: Obtener todos los puntos de medición de un sitio
+ *     summary: Get all measuring points for a site
  *     tags: [Measuring Points]
  *     parameters:
  *       - in: path
@@ -43,10 +39,10 @@ router.get('/', measuringPointController.getAllMeasuringPoints);
  *         schema:
  *           type: string
  *         required: true
- *         description: ID del sitio
+ *         description: Site ID
  *     responses:
  *       200:
- *         description: Lista de puntos de medición del sitio
+ *         description: List of measuring points for the site
  *         content:
  *           application/json:
  *             schema:
@@ -54,13 +50,13 @@ router.get('/', measuringPointController.getAllMeasuringPoints);
  *               items:
  *                 $ref: '#/components/schemas/MeasuringPoint'
  *       400:
- *         description: ID inválido
+ *         description: Invalid ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -72,7 +68,7 @@ router.get('/site/:siteId', measuringPointController.getMeasuringPointsBySite);
  * @swagger
  * /measuring-points/{id}:
  *   get:
- *     summary: Obtener un punto de medición por ID
+ *     summary: Get a measuring point by ID
  *     tags: [Measuring Points]
  *     parameters:
  *       - in: path
@@ -80,28 +76,28 @@ router.get('/site/:siteId', measuringPointController.getMeasuringPointsBySite);
  *         schema:
  *           type: string
  *         required: true
- *         description: ID del punto de medición
+ *         description: Measuring point ID
  *     responses:
  *       200:
- *         description: Detalles del punto de medición
+ *         description: Measuring point details
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/MeasuringPoint'
  *       400:
- *         description: ID inválido
+ *         description: Invalid ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Punto de medición no encontrado
+ *         description: Measuring point not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -113,7 +109,7 @@ router.get('/:id', measuringPointController.getMeasuringPointById);
  * @swagger
  * /measuring-points:
  *   post:
- *     summary: Crear un nuevo punto de medición
+ *     summary: Create a new measuring point
  *     tags: [Measuring Points]
  *     requestBody:
  *       required: true
@@ -127,57 +123,58 @@ router.get('/:id', measuringPointController.getMeasuringPointById);
  *             properties:
  *               name:
  *                 type: string
- *                 description: Nombre del punto de medición
+ *                 description: Measuring point name
  *                 maxLength: 250
  *               description:
  *                 type: string
- *                 description: Descripción del punto de medición
- *                 maxLength: 250
+ *                 description: Measuring point description
+ *                 maxLength: 500
  *               coordinates:
  *                 type: object
+ *                 description: Geographic coordinates
  *                 properties:
  *                   latitude:
  *                     type: number
- *                     description: Latitud del punto de medición
+ *                     description: Latitude
  *                   longitude:
  *                     type: number
- *                     description: Longitud del punto de medición
+ *                     description: Longitude
  *               siteId:
  *                 type: string
- *                 description: ID del sitio al que pertenece el punto de medición
+ *                 description: ID of the site this measuring point belongs to
  *     responses:
  *       201:
- *         description: Punto de medición creado exitosamente
+ *         description: Measuring point created successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/MeasuringPoint'
  *       400:
- *         description: Datos inválidos
+ *         description: Invalid data
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Sitio no encontrado
+ *         description: Site not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', createMeasuringPointValidation, measuringPointController.createMeasuringPoint);
+router.post('/', measuringPointController.createMeasuringPoint);
 
 /**
  * @swagger
  * /measuring-points/{id}:
  *   put:
- *     summary: Actualizar un punto de medición
+ *     summary: Update a measuring point
  *     tags: [Measuring Points]
  *     parameters:
  *       - in: path
@@ -185,7 +182,7 @@ router.post('/', createMeasuringPointValidation, measuringPointController.create
  *         schema:
  *           type: string
  *         required: true
- *         description: ID del punto de medición
+ *         description: Measuring point ID
  *     requestBody:
  *       required: true
  *       content:
@@ -195,54 +192,55 @@ router.post('/', createMeasuringPointValidation, measuringPointController.create
  *             properties:
  *               name:
  *                 type: string
- *                 description: Nombre del punto de medición
+ *                 description: Measuring point name
  *                 maxLength: 250
  *               description:
  *                 type: string
- *                 description: Descripción del punto de medición
- *                 maxLength: 250
+ *                 description: Measuring point description
+ *                 maxLength: 500
  *               coordinates:
  *                 type: object
+ *                 description: Geographic coordinates
  *                 properties:
  *                   latitude:
  *                     type: number
- *                     description: Latitud del punto de medición
+ *                     description: Latitude
  *                   longitude:
  *                     type: number
- *                     description: Longitud del punto de medición
+ *                     description: Longitude
  *     responses:
  *       200:
- *         description: Punto de medición actualizado exitosamente
+ *         description: Measuring point updated successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/MeasuringPoint'
  *       400:
- *         description: Datos inválidos
+ *         description: Invalid data
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Punto de medición no encontrado
+ *         description: Measuring point not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', updateMeasuringPointValidation, measuringPointController.updateMeasuringPoint);
+router.put('/:id', measuringPointController.updateMeasuringPoint);
 
 /**
  * @swagger
  * /measuring-points/{id}:
  *   delete:
- *     summary: Eliminar un punto de medición
+ *     summary: Delete a measuring point
  *     tags: [Measuring Points]
  *     parameters:
  *       - in: path
@@ -250,10 +248,10 @@ router.put('/:id', updateMeasuringPointValidation, measuringPointController.upda
  *         schema:
  *           type: string
  *         required: true
- *         description: ID del punto de medición
+ *         description: Measuring point ID
  *     responses:
  *       200:
- *         description: Punto de medición eliminado exitosamente
+ *         description: Measuring point deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -261,21 +259,21 @@ router.put('/:id', updateMeasuringPointValidation, measuringPointController.upda
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Punto de medición eliminado correctamente
+ *                   example: Measuring point successfully deleted
  *       400:
- *         description: ID inválido
+ *         description: Invalid ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Punto de medición no encontrado
+ *         description: Measuring point not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:

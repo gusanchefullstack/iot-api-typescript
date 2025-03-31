@@ -7,12 +7,12 @@ export const getAllSites = async (req: Request, res: Response) => {
     const sites = await prisma.site.findMany();
     res.json(sites);
   } catch (error) {
-    console.error('Error al obtener sitios:', error);
-    res.status(500).json({ error: 'Error al obtener sitios' });
+    console.error('Error getting sites:', error);
+    res.status(500).json({ error: 'Error getting sites' });
   }
 };
 
-// Obtener todos los sitios de una organización
+// Obtener sitios por organización
 export const getSitesByOrganization = async (req: Request, res: Response) => {
   try {
     const { organizationId } = req.params;
@@ -23,8 +23,8 @@ export const getSitesByOrganization = async (req: Request, res: Response) => {
     
     res.json(sites);
   } catch (error) {
-    console.error('Error al obtener sitios:', error);
-    res.status(500).json({ error: 'Error al obtener sitios' });
+    console.error('Error getting sites by organization:', error);
+    res.status(500).json({ error: 'Error getting sites by organization' });
   }
 };
 
@@ -42,13 +42,13 @@ export const getSiteById = async (req: Request, res: Response) => {
     });
 
     if (!site) {
-      return res.status(404).json({ error: 'Sitio no encontrado' });
+      return res.status(404).json({ error: 'Site not found' });
     }
 
     res.json(site);
   } catch (error) {
-    console.error('Error al obtener el sitio:', error);
-    res.status(500).json({ error: 'Error al obtener el sitio' });
+    console.error('Error getting site:', error);
+    res.status(500).json({ error: 'Error getting site' });
   }
 };
 
@@ -69,7 +69,7 @@ export const createSite = async (req: Request, res: Response) => {
     });
 
     if (!organizationExists) {
-      return res.status(404).json({ error: 'La organización no existe' });
+      return res.status(404).json({ error: 'Organization not found' });
     }
 
     const site = await prisma.site.create({
@@ -85,8 +85,8 @@ export const createSite = async (req: Request, res: Response) => {
 
     res.status(201).json(site);
   } catch (error) {
-    console.error('Error al crear el sitio:', error);
-    res.status(500).json({ error: 'Error al crear el sitio' });
+    console.error('Error creating site:', error);
+    res.status(500).json({ error: 'Error creating site' });
   }
 };
 
@@ -95,9 +95,13 @@ export const updateSite = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, description, location } = req.body;
+    
+    const siteExists = await prisma.site.findUnique({
+      where: { id }
+    });
 
-    if (!name) {
-      return res.status(400).json({ error: 'El nombre del sitio es requerido' });
+    if (!siteExists) {
+      return res.status(404).json({ error: 'Site not found' });
     }
 
     const updatedSite = await prisma.site.update({
@@ -111,8 +115,8 @@ export const updateSite = async (req: Request, res: Response) => {
 
     res.json(updatedSite);
   } catch (error) {
-    console.error('Error al actualizar el sitio:', error);
-    res.status(500).json({ error: 'Error al actualizar el sitio' });
+    console.error('Error updating site:', error);
+    res.status(500).json({ error: 'Error updating site' });
   }
 };
 
@@ -120,14 +124,22 @@ export const updateSite = async (req: Request, res: Response) => {
 export const deleteSite = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    
+    const siteExists = await prisma.site.findUnique({
+      where: { id }
+    });
+
+    if (!siteExists) {
+      return res.status(404).json({ error: 'Site not found' });
+    }
 
     await prisma.site.delete({
       where: { id }
     });
 
-    res.json({ message: 'Sitio eliminado correctamente' });
+    res.json({ message: 'Site successfully deleted' });
   } catch (error) {
-    console.error('Error al eliminar el sitio:', error);
-    res.status(500).json({ error: 'Error al eliminar el sitio' });
+    console.error('Error deleting site:', error);
+    res.status(500).json({ error: 'Error deleting site' });
   }
 }; 

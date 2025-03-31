@@ -7,8 +7,8 @@ export const getAllMeasuringPoints = async (req: Request, res: Response) => {
     const measuringPoints = await prisma.measuringPoint.findMany();
     res.json(measuringPoints);
   } catch (error) {
-    console.error('Error al obtener puntos de medición:', error);
-    res.status(500).json({ error: 'Error al obtener puntos de medición' });
+    console.error('Error getting measuring points:', error);
+    res.status(500).json({ error: 'Error getting measuring points' });
   }
 };
 
@@ -23,8 +23,8 @@ export const getMeasuringPointsBySite = async (req: Request, res: Response) => {
     
     res.json(measuringPoints);
   } catch (error) {
-    console.error('Error al obtener puntos de medición:', error);
-    res.status(500).json({ error: 'Error al obtener puntos de medición' });
+    console.error('Error getting measuring points by site:', error);
+    res.status(500).json({ error: 'Error getting measuring points by site' });
   }
 };
 
@@ -42,13 +42,13 @@ export const getMeasuringPointById = async (req: Request, res: Response) => {
     });
 
     if (!measuringPoint) {
-      return res.status(404).json({ error: 'Punto de medición no encontrado' });
+      return res.status(404).json({ error: 'Measuring point not found' });
     }
 
     res.json(measuringPoint);
   } catch (error) {
-    console.error('Error al obtener el punto de medición:', error);
-    res.status(500).json({ error: 'Error al obtener el punto de medición' });
+    console.error('Error getting measuring point:', error);
+    res.status(500).json({ error: 'Error getting measuring point' });
   }
 };
 
@@ -69,7 +69,7 @@ export const createMeasuringPoint = async (req: Request, res: Response) => {
     });
 
     if (!siteExists) {
-      return res.status(404).json({ error: 'El sitio no existe' });
+      return res.status(404).json({ error: 'Site not found' });
     }
 
     const measuringPoint = await prisma.measuringPoint.create({
@@ -85,8 +85,8 @@ export const createMeasuringPoint = async (req: Request, res: Response) => {
 
     res.status(201).json(measuringPoint);
   } catch (error) {
-    console.error('Error al crear el punto de medición:', error);
-    res.status(500).json({ error: 'Error al crear el punto de medición' });
+    console.error('Error creating measuring point:', error);
+    res.status(500).json({ error: 'Error creating measuring point' });
   }
 };
 
@@ -95,9 +95,13 @@ export const updateMeasuringPoint = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, description, coordinates } = req.body;
+    
+    const measuringPointExists = await prisma.measuringPoint.findUnique({
+      where: { id }
+    });
 
-    if (!name) {
-      return res.status(400).json({ error: 'El nombre del punto de medición es requerido' });
+    if (!measuringPointExists) {
+      return res.status(404).json({ error: 'Measuring point not found' });
     }
 
     const updatedMeasuringPoint = await prisma.measuringPoint.update({
@@ -111,8 +115,8 @@ export const updateMeasuringPoint = async (req: Request, res: Response) => {
 
     res.json(updatedMeasuringPoint);
   } catch (error) {
-    console.error('Error al actualizar el punto de medición:', error);
-    res.status(500).json({ error: 'Error al actualizar el punto de medición' });
+    console.error('Error updating measuring point:', error);
+    res.status(500).json({ error: 'Error updating measuring point' });
   }
 };
 
@@ -120,14 +124,22 @@ export const updateMeasuringPoint = async (req: Request, res: Response) => {
 export const deleteMeasuringPoint = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    
+    const measuringPointExists = await prisma.measuringPoint.findUnique({
+      where: { id }
+    });
+
+    if (!measuringPointExists) {
+      return res.status(404).json({ error: 'Measuring point not found' });
+    }
 
     await prisma.measuringPoint.delete({
       where: { id }
     });
 
-    res.json({ message: 'Punto de medición eliminado correctamente' });
+    res.json({ message: 'Measuring point successfully deleted' });
   } catch (error) {
-    console.error('Error al eliminar el punto de medición:', error);
-    res.status(500).json({ error: 'Error al eliminar el punto de medición' });
+    console.error('Error deleting measuring point:', error);
+    res.status(500).json({ error: 'Error deleting measuring point' });
   }
 }; 

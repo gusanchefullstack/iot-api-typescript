@@ -1,9 +1,5 @@
 import { Router } from 'express';
 import * as organizationController from '../controllers/organizationController';
-import {
-  createOrganizationValidation,
-  updateOrganizationValidation
-} from '../middleware/organizationValidation';
 
 const router = Router();
 
@@ -11,11 +7,11 @@ const router = Router();
  * @swagger
  * /organizations:
  *   get:
- *     summary: Obtener todas las organizaciones
+ *     summary: Get all organizations
  *     tags: [Organizations]
  *     responses:
  *       200:
- *         description: Lista de organizaciones
+ *         description: List of organizations
  *         content:
  *           application/json:
  *             schema:
@@ -23,7 +19,7 @@ const router = Router();
  *               items:
  *                 $ref: '#/components/schemas/Organization'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -35,7 +31,7 @@ router.get('/', organizationController.getAllOrganizations);
  * @swagger
  * /organizations/{id}:
  *   get:
- *     summary: Obtener una organización por ID
+ *     summary: Get an organization by ID
  *     tags: [Organizations]
  *     parameters:
  *       - in: path
@@ -43,28 +39,28 @@ router.get('/', organizationController.getAllOrganizations);
  *         schema:
  *           type: string
  *         required: true
- *         description: ID de la organización
+ *         description: Organization ID
  *     responses:
  *       200:
- *         description: Detalles de la organización
+ *         description: Organization details
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Organization'
  *       400:
- *         description: ID inválido
+ *         description: Invalid ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Organización no encontrada
+ *         description: Organization not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -76,7 +72,7 @@ router.get('/:id', organizationController.getOrganizationById);
  * @swagger
  * /organizations:
  *   post:
- *     summary: Crear una nueva organización
+ *     summary: Create a new organization
  *     tags: [Organizations]
  *     requestBody:
  *       required: true
@@ -89,39 +85,39 @@ router.get('/:id', organizationController.getOrganizationById);
  *             properties:
  *               name:
  *                 type: string
- *                 description: Nombre de la organización
+ *                 description: Organization name
  *                 maxLength: 250
  *               description:
  *                 type: string
- *                 description: Descripción de la organización
- *                 maxLength: 250
+ *                 description: Organization description
+ *                 maxLength: 500
  *     responses:
  *       201:
- *         description: Organización creada exitosamente
+ *         description: Organization created successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Organization'
  *       400:
- *         description: Datos inválidos
+ *         description: Invalid data
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', createOrganizationValidation, organizationController.createOrganization);
+router.post('/', organizationController.createOrganization);
 
 /**
  * @swagger
  * /organizations/{id}:
  *   put:
- *     summary: Actualizar una organización
+ *     summary: Update an organization
  *     tags: [Organizations]
  *     parameters:
  *       - in: path
@@ -129,7 +125,7 @@ router.post('/', createOrganizationValidation, organizationController.createOrga
  *         schema:
  *           type: string
  *         required: true
- *         description: ID de la organización
+ *         description: Organization ID
  *     requestBody:
  *       required: true
  *       content:
@@ -139,45 +135,45 @@ router.post('/', createOrganizationValidation, organizationController.createOrga
  *             properties:
  *               name:
  *                 type: string
- *                 description: Nombre de la organización
+ *                 description: Organization name
  *                 maxLength: 250
  *               description:
  *                 type: string
- *                 description: Descripción de la organización
- *                 maxLength: 250
+ *                 description: Organization description
+ *                 maxLength: 500
  *     responses:
  *       200:
- *         description: Organización actualizada exitosamente
+ *         description: Organization updated successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Organization'
  *       400:
- *         description: Datos inválidos
+ *         description: Invalid data
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Organización no encontrada
+ *         description: Organization not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', updateOrganizationValidation, organizationController.updateOrganization);
+router.put('/:id', organizationController.updateOrganization);
 
 /**
  * @swagger
  * /organizations/{id}:
  *   delete:
- *     summary: Eliminar una organización
+ *     summary: Delete an organization
  *     tags: [Organizations]
  *     parameters:
  *       - in: path
@@ -185,10 +181,10 @@ router.put('/:id', updateOrganizationValidation, organizationController.updateOr
  *         schema:
  *           type: string
  *         required: true
- *         description: ID de la organización
+ *         description: Organization ID
  *     responses:
  *       200:
- *         description: Organización eliminada exitosamente
+ *         description: Organization deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -196,21 +192,21 @@ router.put('/:id', updateOrganizationValidation, organizationController.updateOr
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Organización eliminada correctamente
+ *                   example: Organization successfully deleted
  *       400:
- *         description: ID inválido
+ *         description: Invalid ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Organización no encontrada
+ *         description: Organization not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:

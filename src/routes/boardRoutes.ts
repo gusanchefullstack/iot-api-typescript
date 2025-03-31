@@ -1,9 +1,5 @@
 import { Router } from 'express';
 import * as boardController from '../controllers/boardController';
-import {
-  createBoardValidation,
-  updateBoardValidation
-} from '../middleware/boardValidation';
 
 const router = Router();
 
@@ -11,11 +7,11 @@ const router = Router();
  * @swagger
  * /boards:
  *   get:
- *     summary: Obtener todas las placas
+ *     summary: Get all boards
  *     tags: [Boards]
  *     responses:
  *       200:
- *         description: Lista de placas
+ *         description: List of boards
  *         content:
  *           application/json:
  *             schema:
@@ -23,7 +19,7 @@ const router = Router();
  *               items:
  *                 $ref: '#/components/schemas/Board'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -35,7 +31,7 @@ router.get('/', boardController.getAllBoards);
  * @swagger
  * /boards/measuring-point/{measuringPointId}:
  *   get:
- *     summary: Obtener todas las placas de un punto de medición
+ *     summary: Get all boards for a measuring point
  *     tags: [Boards]
  *     parameters:
  *       - in: path
@@ -43,10 +39,10 @@ router.get('/', boardController.getAllBoards);
  *         schema:
  *           type: string
  *         required: true
- *         description: ID del punto de medición
+ *         description: Measuring point ID
  *     responses:
  *       200:
- *         description: Lista de placas del punto de medición
+ *         description: List of boards for the measuring point
  *         content:
  *           application/json:
  *             schema:
@@ -54,13 +50,13 @@ router.get('/', boardController.getAllBoards);
  *               items:
  *                 $ref: '#/components/schemas/Board'
  *       400:
- *         description: ID inválido
+ *         description: Invalid ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -72,7 +68,7 @@ router.get('/measuring-point/:measuringPointId', boardController.getBoardsByMeas
  * @swagger
  * /boards/{id}:
  *   get:
- *     summary: Obtener una placa por ID
+ *     summary: Get a board by ID
  *     tags: [Boards]
  *     parameters:
  *       - in: path
@@ -80,28 +76,28 @@ router.get('/measuring-point/:measuringPointId', boardController.getBoardsByMeas
  *         schema:
  *           type: string
  *         required: true
- *         description: ID de la placa
+ *         description: Board ID
  *     responses:
  *       200:
- *         description: Detalles de la placa
+ *         description: Board details
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Board'
  *       400:
- *         description: ID inválido
+ *         description: Invalid ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Placa no encontrada
+ *         description: Board not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -113,7 +109,7 @@ router.get('/:id', boardController.getBoardById);
  * @swagger
  * /boards:
  *   post:
- *     summary: Crear una nueva placa
+ *     summary: Create a new board
  *     tags: [Boards]
  *     requestBody:
  *       required: true
@@ -127,60 +123,60 @@ router.get('/:id', boardController.getBoardById);
  *             properties:
  *               name:
  *                 type: string
- *                 description: Nombre de la placa
+ *                 description: Board name
  *                 maxLength: 250
  *               serialNumber:
  *                 type: string
- *                 description: Número de serie de la placa
- *                 maxLength: 250
+ *                 description: Board serial number
+ *                 maxLength: 100
  *               firmwareVersion:
  *                 type: string
- *                 description: Versión del firmware
- *                 maxLength: 250
+ *                 description: Board firmware version
+ *                 maxLength: 50
  *               description:
  *                 type: string
- *                 description: Descripción de la placa
- *                 maxLength: 250
+ *                 description: Board description
+ *                 maxLength: 500
  *               status:
  *                 type: string
+ *                 description: Board status
  *                 enum: [active, inactive, maintenance]
- *                 description: Estado de la placa
  *               measuringPointId:
  *                 type: string
- *                 description: ID del punto de medición al que pertenece la placa
+ *                 description: ID of the measuring point this board belongs to
  *     responses:
  *       201:
- *         description: Placa creada exitosamente
+ *         description: Board created successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Board'
  *       400:
- *         description: Datos inválidos
+ *         description: Invalid data
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Punto de medición no encontrado
+ *         description: Measuring point not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', createBoardValidation, boardController.createBoard);
+router.post('/', boardController.createBoard);
 
 /**
  * @swagger
  * /boards/{id}:
  *   put:
- *     summary: Actualizar una placa
+ *     summary: Update a board
  *     tags: [Boards]
  *     parameters:
  *       - in: path
@@ -188,7 +184,7 @@ router.post('/', createBoardValidation, boardController.createBoard);
  *         schema:
  *           type: string
  *         required: true
- *         description: ID de la placa
+ *         description: Board ID
  *     requestBody:
  *       required: true
  *       content:
@@ -198,57 +194,57 @@ router.post('/', createBoardValidation, boardController.createBoard);
  *             properties:
  *               name:
  *                 type: string
- *                 description: Nombre de la placa
+ *                 description: Board name
  *                 maxLength: 250
  *               serialNumber:
  *                 type: string
- *                 description: Número de serie de la placa
- *                 maxLength: 250
+ *                 description: Board serial number
+ *                 maxLength: 100
  *               firmwareVersion:
  *                 type: string
- *                 description: Versión del firmware
- *                 maxLength: 250
+ *                 description: Board firmware version
+ *                 maxLength: 50
  *               description:
  *                 type: string
- *                 description: Descripción de la placa
- *                 maxLength: 250
+ *                 description: Board description
+ *                 maxLength: 500
  *               status:
  *                 type: string
+ *                 description: Board status
  *                 enum: [active, inactive, maintenance]
- *                 description: Estado de la placa
  *     responses:
  *       200:
- *         description: Placa actualizada exitosamente
+ *         description: Board updated successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Board'
  *       400:
- *         description: Datos inválidos
+ *         description: Invalid data
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Placa no encontrada
+ *         description: Board not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', updateBoardValidation, boardController.updateBoard);
+router.put('/:id', boardController.updateBoard);
 
 /**
  * @swagger
  * /boards/{id}:
  *   delete:
- *     summary: Eliminar una placa
+ *     summary: Delete a board
  *     tags: [Boards]
  *     parameters:
  *       - in: path
@@ -256,10 +252,10 @@ router.put('/:id', updateBoardValidation, boardController.updateBoard);
  *         schema:
  *           type: string
  *         required: true
- *         description: ID de la placa
+ *         description: Board ID
  *     responses:
  *       200:
- *         description: Placa eliminada exitosamente
+ *         description: Board deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -267,21 +263,21 @@ router.put('/:id', updateBoardValidation, boardController.updateBoard);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Placa eliminada correctamente
+ *                   example: Board successfully deleted
  *       400:
- *         description: ID inválido
+ *         description: Invalid ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Placa no encontrada
+ *         description: Board not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:

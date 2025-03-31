@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
   res.status(500).json({
-    message: 'Error interno del servidor',
+    message: 'Internal server error',
     error: process.env.NODE_ENV === 'production' ? {} : err
   });
 });

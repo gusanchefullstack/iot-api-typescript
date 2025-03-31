@@ -1,9 +1,5 @@
 import { Router } from 'express';
 import * as sensorController from '../controllers/sensorController';
-import {
-  createSensorValidation,
-  updateSensorValidation
-} from '../middleware/sensorValidation';
 
 const router = Router();
 
@@ -11,11 +7,11 @@ const router = Router();
  * @swagger
  * /sensors:
  *   get:
- *     summary: Obtener todos los sensores
+ *     summary: Get all sensors
  *     tags: [Sensors]
  *     responses:
  *       200:
- *         description: Lista de sensores
+ *         description: List of sensors
  *         content:
  *           application/json:
  *             schema:
@@ -23,7 +19,7 @@ const router = Router();
  *               items:
  *                 $ref: '#/components/schemas/Sensor'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -33,34 +29,9 @@ router.get('/', sensorController.getAllSensors);
 
 /**
  * @swagger
- * /sensors/types:
- *   get:
- *     summary: Obtener los tipos de sensores disponibles
- *     tags: [Sensors]
- *     responses:
- *       200:
- *         description: Lista de tipos de sensores
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: string
- *                 enum: [TEMPERATURE, HUMIDITY, PH]
- *       500:
- *         description: Error del servidor
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- */
-router.get('/types', sensorController.getSensorTypes);
-
-/**
- * @swagger
  * /sensors/board/{boardId}:
  *   get:
- *     summary: Obtener todos los sensores de una placa
+ *     summary: Get all sensors for a board
  *     tags: [Sensors]
  *     parameters:
  *       - in: path
@@ -68,10 +39,10 @@ router.get('/types', sensorController.getSensorTypes);
  *         schema:
  *           type: string
  *         required: true
- *         description: ID de la placa
+ *         description: Board ID
  *     responses:
  *       200:
- *         description: Lista de sensores de la placa
+ *         description: List of sensors for the board
  *         content:
  *           application/json:
  *             schema:
@@ -79,13 +50,13 @@ router.get('/types', sensorController.getSensorTypes);
  *               items:
  *                 $ref: '#/components/schemas/Sensor'
  *       400:
- *         description: ID inválido
+ *         description: Invalid ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -95,9 +66,34 @@ router.get('/board/:boardId', sensorController.getSensorsByBoard);
 
 /**
  * @swagger
+ * /sensors/types:
+ *   get:
+ *     summary: Get all sensor types
+ *     tags: [Sensors]
+ *     responses:
+ *       200:
+ *         description: List of sensor types
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *                 enum: [TEMPERATURE, HUMIDITY, PH]
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.get('/types', sensorController.getSensorTypes);
+
+/**
+ * @swagger
  * /sensors/{id}:
  *   get:
- *     summary: Obtener un sensor por ID
+ *     summary: Get a sensor by ID
  *     tags: [Sensors]
  *     parameters:
  *       - in: path
@@ -105,28 +101,28 @@ router.get('/board/:boardId', sensorController.getSensorsByBoard);
  *         schema:
  *           type: string
  *         required: true
- *         description: ID del sensor
+ *         description: Sensor ID
  *     responses:
  *       200:
- *         description: Detalles del sensor
+ *         description: Sensor details
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Sensor'
  *       400:
- *         description: ID inválido
+ *         description: Invalid ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Sensor no encontrado
+ *         description: Sensor not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -138,7 +134,7 @@ router.get('/:id', sensorController.getSensorById);
  * @swagger
  * /sensors:
  *   post:
- *     summary: Crear un nuevo sensor
+ *     summary: Create a new sensor
  *     tags: [Sensors]
  *     requestBody:
  *       required: true
@@ -153,66 +149,62 @@ router.get('/:id', sensorController.getSensorById);
  *             properties:
  *               name:
  *                 type: string
- *                 description: Nombre del sensor
+ *                 description: Sensor name
  *                 maxLength: 250
  *               type:
  *                 type: string
+ *                 description: Sensor type
  *                 enum: [TEMPERATURE, HUMIDITY, PH]
- *                 description: Tipo de sensor
  *               unit:
  *                 type: string
- *                 description: Unidad de medida
- *                 maxLength: 250
- *               minValue:
- *                 type: number
- *                 description: Valor mínimo del rango del sensor
- *               maxValue:
- *                 type: number
- *                 description: Valor máximo del rango del sensor
+ *                 description: Measurement unit
+ *                 maxLength: 20
  *               description:
  *                 type: string
- *                 description: Descripción del sensor
- *                 maxLength: 250
- *               status:
- *                 type: string
- *                 enum: [active, inactive, maintenance]
- *                 description: Estado del sensor
+ *                 description: Sensor description
+ *                 maxLength: 500
+ *               minValue:
+ *                 type: number
+ *                 description: Minimum sensor value
+ *               maxValue:
+ *                 type: number
+ *                 description: Maximum sensor value
  *               boardId:
  *                 type: string
- *                 description: ID de la placa a la que pertenece el sensor
+ *                 description: ID of the board this sensor belongs to
  *     responses:
  *       201:
- *         description: Sensor creado exitosamente
+ *         description: Sensor created successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Sensor'
  *       400:
- *         description: Datos inválidos
+ *         description: Invalid data
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Placa no encontrada
+ *         description: Board not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', createSensorValidation, sensorController.createSensor);
+router.post('/', sensorController.createSensor);
 
 /**
  * @swagger
  * /sensors/{id}:
  *   put:
- *     summary: Actualizar un sensor
+ *     summary: Update a sensor
  *     tags: [Sensors]
  *     parameters:
  *       - in: path
@@ -220,7 +212,7 @@ router.post('/', createSensorValidation, sensorController.createSensor);
  *         schema:
  *           type: string
  *         required: true
- *         description: ID del sensor
+ *         description: Sensor ID
  *     requestBody:
  *       required: true
  *       content:
@@ -230,63 +222,59 @@ router.post('/', createSensorValidation, sensorController.createSensor);
  *             properties:
  *               name:
  *                 type: string
- *                 description: Nombre del sensor
+ *                 description: Sensor name
  *                 maxLength: 250
  *               type:
  *                 type: string
+ *                 description: Sensor type
  *                 enum: [TEMPERATURE, HUMIDITY, PH]
- *                 description: Tipo de sensor
  *               unit:
  *                 type: string
- *                 description: Unidad de medida
- *                 maxLength: 250
- *               minValue:
- *                 type: number
- *                 description: Valor mínimo del rango del sensor
- *               maxValue:
- *                 type: number
- *                 description: Valor máximo del rango del sensor
+ *                 description: Measurement unit
+ *                 maxLength: 20
  *               description:
  *                 type: string
- *                 description: Descripción del sensor
- *                 maxLength: 250
- *               status:
- *                 type: string
- *                 enum: [active, inactive, maintenance]
- *                 description: Estado del sensor
+ *                 description: Sensor description
+ *                 maxLength: 500
+ *               minValue:
+ *                 type: number
+ *                 description: Minimum sensor value
+ *               maxValue:
+ *                 type: number
+ *                 description: Maximum sensor value
  *     responses:
  *       200:
- *         description: Sensor actualizado exitosamente
+ *         description: Sensor updated successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Sensor'
  *       400:
- *         description: Datos inválidos
+ *         description: Invalid data
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Sensor no encontrado
+ *         description: Sensor not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', updateSensorValidation, sensorController.updateSensor);
+router.put('/:id', sensorController.updateSensor);
 
 /**
  * @swagger
  * /sensors/{id}:
  *   delete:
- *     summary: Eliminar un sensor
+ *     summary: Delete a sensor
  *     tags: [Sensors]
  *     parameters:
  *       - in: path
@@ -294,10 +282,10 @@ router.put('/:id', updateSensorValidation, sensorController.updateSensor);
  *         schema:
  *           type: string
  *         required: true
- *         description: ID del sensor
+ *         description: Sensor ID
  *     responses:
  *       200:
- *         description: Sensor eliminado exitosamente
+ *         description: Sensor deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -305,21 +293,21 @@ router.put('/:id', updateSensorValidation, sensorController.updateSensor);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Sensor eliminado correctamente
+ *                   example: Sensor successfully deleted
  *       400:
- *         description: ID inválido
+ *         description: Invalid ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       404:
- *         description: Sensor no encontrado
+ *         description: Sensor not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/NotFound'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:

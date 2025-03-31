@@ -7,8 +7,8 @@ export const getAllOrganizations = async (req: Request, res: Response) => {
     const organizations = await prisma.organization.findMany();
     res.json(organizations);
   } catch (error: any) {
-    console.error('Error al obtener organizaciones:', error);
-    res.status(500).json({ error: 'Error al obtener organizaciones' });
+    console.error('Error getting organizations:', error);
+    res.status(500).json({ error: 'Error getting organizations' });
   }
 };
 
@@ -16,19 +16,20 @@ export const getAllOrganizations = async (req: Request, res: Response) => {
 export const getOrganizationById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    
     const organization = await prisma.organization.findUnique({
       where: { id },
       include: { sites: true }
     });
 
     if (!organization) {
-      return res.status(404).json({ error: 'Organización no encontrada' });
+      return res.status(404).json({ error: 'Organization not found' });
     }
 
     res.json(organization);
   } catch (error: any) {
-    console.error('Error al obtener la organización:', error);
-    res.status(500).json({ error: 'Error al obtener la organización' });
+    console.error('Error getting organization:', error);
+    res.status(500).json({ error: 'Error getting organization' });
   }
 };
 
@@ -46,8 +47,8 @@ export const createOrganization = async (req: Request, res: Response) => {
 
     res.status(201).json(organization);
   } catch (error: any) {
-    console.error('Error al crear la organización:', error);
-    res.status(500).json({ error: 'Error al crear la organización' });
+    console.error('Error creating organization:', error);
+    res.status(500).json({ error: 'Error creating organization' });
   }
 };
 
@@ -56,25 +57,27 @@ export const updateOrganization = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, description } = req.body;
+    
+    const organizationExists = await prisma.organization.findUnique({
+      where: { id }
+    });
+
+    if (!organizationExists) {
+      return res.status(404).json({ error: 'Organization not found' });
+    }
 
     const updatedOrganization = await prisma.organization.update({
       where: { id },
       data: {
-        ...(name && { name }),
-        ...(description !== undefined && { description })
+        name,
+        description
       }
     });
 
     res.json(updatedOrganization);
   } catch (error: any) {
-    console.error('Error al actualizar la organización:', error);
-    
-    // Verificar si es un error de registro no encontrado
-    if (error.code === 'P2025') {
-      return res.status(404).json({ error: 'Organización no encontrada' });
-    }
-    
-    res.status(500).json({ error: 'Error al actualizar la organización' });
+    console.error('Error updating organization:', error);
+    res.status(500).json({ error: 'Error updating organization' });
   }
 };
 
@@ -82,20 +85,22 @@ export const updateOrganization = async (req: Request, res: Response) => {
 export const deleteOrganization = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    
+    const organizationExists = await prisma.organization.findUnique({
+      where: { id }
+    });
+
+    if (!organizationExists) {
+      return res.status(404).json({ error: 'Organization not found' });
+    }
 
     await prisma.organization.delete({
       where: { id }
     });
 
-    res.json({ message: 'Organización eliminada correctamente' });
+    res.json({ message: 'Organization successfully deleted' });
   } catch (error: any) {
-    console.error('Error al eliminar la organización:', error);
-    
-    // Verificar si es un error de registro no encontrado
-    if (error.code === 'P2025') {
-      return res.status(404).json({ error: 'Organización no encontrada' });
-    }
-    
-    res.status(500).json({ error: 'Error al eliminar la organización' });
+    console.error('Error deleting organization:', error);
+    res.status(500).json({ error: 'Error deleting organization' });
   }
 }; 
