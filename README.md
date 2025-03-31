@@ -1,244 +1,244 @@
-# API IoT con Express y TypeScript
+# IoT API with Express and TypeScript
 
-API RESTful para gestión de dispositivos IoT desarrollada con Express.js, TypeScript y MongoDB Atlas mediante Prisma ORM.
+RESTful API for IoT device management developed with Express.js, TypeScript, and MongoDB Atlas using Prisma ORM.
 
-## Requisitos
+## Requirements
 
 - Node.js v14+
-- npm o yarn
-- MongoDB Atlas cuenta (para la base de datos)
+- npm or yarn
+- MongoDB Atlas account (for the database)
 
-## Instalación
+## Installation
 
 ```bash
-# Clonar el repositorio
+# Clone the repository
 git clone https://github.com/gusanchefullstack/iot-api-typescript.git
 cd iot-api-typescript
 
-# Instalar dependencias
+# Install dependencies
 npm install
 ```
 
-## Configuración
+## Configuration
 
-Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+Create a `.env` file in the project root with the following variables:
 
 ```
-PORT=3000
+PORT=8090
 NODE_ENV=development
 DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/iot-database?retryWrites=true&w=majority"
 ```
 
-Reemplaza la URL de la base de datos con tu propia URL de conexión a MongoDB Atlas.
+Replace the database URL with your own MongoDB Atlas connection URL.
 
-## Base de datos
+## Database
 
-Este proyecto utiliza Prisma ORM para conectarse a MongoDB Atlas. Los modelos de datos están definidos en el archivo `prisma/schema.prisma`.
+This project uses Prisma ORM to connect to MongoDB Atlas. Data models are defined in the `prisma/schema.prisma` file.
 
-### Estructura de datos
+### Data Structure
 
-La API sigue una jerarquía de entidades:
+The API follows a hierarchy of entities:
 
-1. **Organizations** (Organizaciones)
-2. **Sites** (Sitios)
-3. **Measuring Points** (Puntos de Medición)
-4. **Boards** (Placas/Dispositivos)
-5. **Sensors** (Sensores)
+1. **Organizations**
+2. **Sites**
+3. **Measuring Points**
+4. **Boards**
+5. **Sensors**
 
-Cada nivel puede tener cero o más entidades del nivel siguiente.
+Each level can have zero or more entities of the next level.
 
-#### Tipos de sensores disponibles
+#### Available Sensor Types
 
-Los sensores pueden ser de los siguientes tipos:
-- `TEMPERATURE` - Sensor de temperatura
-- `HUMIDITY` - Sensor de humedad
-- `PH` - Sensor de pH
+Sensors can be of the following types:
+- `TEMPERATURE` - Temperature sensor
+- `HUMIDITY` - Humidity sensor
+- `PH` - pH sensor
 
-### Comandos de Prisma
+### Prisma Commands
 
 ```bash
-# Generar el cliente Prisma
+# Generate Prisma Client
 npx prisma generate
 
-# Aplicar cambios al esquema (si es necesario)
+# Apply schema changes (if necessary)
 npx prisma db push
 ```
 
-## Ejecución
+## Execution
 
 ```bash
-# Modo desarrollo
+# Development mode
 npm run dev
 
-# Compilar TypeScript
+# Compile TypeScript
 npm run build
 
-# Ejecutar en producción
+# Run in production
 npm start
 ```
 
-## Rutas de la API
+## API Routes
 
-### Organizaciones
-- `GET /api/organizations` - Listar todas las organizaciones
-- `GET /api/organizations/:id` - Obtener una organización por ID
-- `POST /api/organizations` - Crear una nueva organización
-- `PUT /api/organizations/:id` - Actualizar una organización
-- `DELETE /api/organizations/:id` - Eliminar una organización
+### Organizations
+- `GET /api/organizations` - List all organizations
+- `GET /api/organizations/:id` - Get an organization by ID
+- `POST /api/organizations` - Create a new organization
+- `PUT /api/organizations/:id` - Update an organization
+- `DELETE /api/organizations/:id` - Delete an organization
 
-### Sitios
-- `GET /api/sites` - Listar todos los sitios
-- `GET /api/sites/organization/:organizationId` - Listar sitios de una organización
-- `GET /api/sites/:id` - Obtener un sitio por ID
-- `POST /api/sites` - Crear un nuevo sitio
-- `PUT /api/sites/:id` - Actualizar un sitio
-- `DELETE /api/sites/:id` - Eliminar un sitio
+### Sites
+- `GET /api/sites` - List all sites
+- `GET /api/sites/organization/:organizationId` - List sites of an organization
+- `GET /api/sites/:id` - Get a site by ID
+- `POST /api/sites` - Create a new site
+- `PUT /api/sites/:id` - Update a site
+- `DELETE /api/sites/:id` - Delete a site
 
-### Puntos de Medición
-- `GET /api/measuring-points` - Listar todos los puntos de medición
-- `GET /api/measuring-points/site/:siteId` - Listar puntos de medición de un sitio
-- `GET /api/measuring-points/:id` - Obtener un punto de medición por ID
-- `POST /api/measuring-points` - Crear un nuevo punto de medición
-- `PUT /api/measuring-points/:id` - Actualizar un punto de medición
-- `DELETE /api/measuring-points/:id` - Eliminar un punto de medición
+### Measuring Points
+- `GET /api/measuring-points` - List all measuring points
+- `GET /api/measuring-points/site/:siteId` - List measuring points of a site
+- `GET /api/measuring-points/:id` - Get a measuring point by ID
+- `POST /api/measuring-points` - Create a new measuring point
+- `PUT /api/measuring-points/:id` - Update a measuring point
+- `DELETE /api/measuring-points/:id` - Delete a measuring point
 
-### Placas
-- `GET /api/boards` - Listar todas las placas
-- `GET /api/boards/measuring-point/:measuringPointId` - Listar placas de un punto de medición
-- `GET /api/boards/:id` - Obtener una placa por ID
-- `POST /api/boards` - Crear una nueva placa
-- `PUT /api/boards/:id` - Actualizar una placa
-- `DELETE /api/boards/:id` - Eliminar una placa
+### Boards
+- `GET /api/boards` - List all boards
+- `GET /api/boards/measuring-point/:measuringPointId` - List boards of a measuring point
+- `GET /api/boards/:id` - Get a board by ID
+- `POST /api/boards` - Create a new board
+- `PUT /api/boards/:id` - Update a board
+- `DELETE /api/boards/:id` - Delete a board
 
-### Sensores
-- `GET /api/sensors` - Listar todos los sensores
-- `GET /api/sensors/types` - Obtener los tipos de sensores disponibles
-- `GET /api/sensors/board/:boardId` - Listar sensores de una placa
-- `GET /api/sensors/:id` - Obtener un sensor por ID
-- `POST /api/sensors` - Crear un nuevo sensor
-- `PUT /api/sensors/:id` - Actualizar un sensor
-- `DELETE /api/sensors/:id` - Eliminar un sensor
+### Sensors
+- `GET /api/sensors` - List all sensors
+- `GET /api/sensors/types` - Get available sensor types
+- `GET /api/sensors/board/:boardId` - List sensors of a board
+- `GET /api/sensors/:id` - Get a sensor by ID
+- `POST /api/sensors` - Create a new sensor
+- `PUT /api/sensors/:id` - Update a sensor
+- `DELETE /api/sensors/:id` - Delete a sensor
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
 .
 ├── prisma/
-│   └── schema.prisma       # Esquema de la base de datos
+│   └── schema.prisma       # Database schema
 ├── src/
-│   ├── config/             # Configuraciones
-│   ├── controllers/        # Controladores de la API
-│   ├── models/             # Modelos adicionales
-│   ├── routes/             # Rutas de la API
+│   ├── config/             # Configurations
+│   ├── controllers/        # API controllers
+│   ├── models/             # Additional models
+│   ├── routes/             # API routes
 │   ├── middlewares/        # Middlewares
-│   ├── utils/              # Utilidades
-│   └── index.ts            # Punto de entrada
-├── .env                    # Variables de entorno
-├── .gitignore              # Archivos ignorados por Git
-├── package.json            # Dependencias y scripts
-└── tsconfig.json           # Configuración de TypeScript
+│   ├── utils/              # Utilities
+│   └── index.ts            # Entry point
+├── .env                    # Environment variables
+├── .gitignore              # Files ignored by Git
+├── package.json            # Dependencies and scripts
+└── tsconfig.json           # TypeScript configuration
 ```
 
-## Validaciones
+## Validations
 
-La API implementa validaciones robustas utilizando express-validator para garantizar la integridad de los datos:
+The API implements robust validations using express-validator to ensure data integrity:
 
-### Validaciones comunes a todas las entidades
-- Validación de MongoDB ObjectId para todos los parámetros de ID
-- Limitación de longitud (máximo 250 caracteres) para campos como nombre, descripción, etc.
+### Common validations for all entities
+- MongoDB ObjectId validation for all ID parameters
+- Length limitation (maximum 250 characters) for fields such as name, description, etc.
 
-### Validaciones específicas por entidad
+### Entity-specific validations
 
-#### Organizaciones
-- Campo `name` requerido
-- Campo `description` opcional con longitud máxima de 250 caracteres
+#### Organizations
+- `name` field required
+- `description` field optional with maximum length of 250 characters
 
-#### Sitios
-- Campo `name` requerido
-- Campos `description` y `location` opcionales con longitud máxima de 250 caracteres
-- Campo `organizationId` requerido y debe ser un MongoDB ObjectId válido
+#### Sites
+- `name` field required
+- `description` and `location` fields optional with maximum length of 250 characters
+- `organizationId` field required and must be a valid MongoDB ObjectId
 
-#### Puntos de Medición
-- Campo `name` requerido
-- Campo `description` opcional con longitud máxima de 250 caracteres
-- Campo `coordinates` opcional, debe ser un objeto con:
-  - Propiedades `latitude` y `longitude` requeridas y numéricas
-  - Latitud debe estar entre -90 y 90 grados
-  - Longitud debe estar entre -180 y 180 grados
-- Campo `siteId` requerido y debe ser un MongoDB ObjectId válido
+#### Measuring Points
+- `name` field required
+- `description` field optional with maximum length of 250 characters
+- `coordinates` field optional, must be an object with:
+  - `latitude` and `longitude` properties required and numeric
+  - Latitude must be between -90 and 90 degrees
+  - Longitude must be between -180 and 180 degrees
+- `siteId` field required and must be a valid MongoDB ObjectId
 
-#### Placas
-- Campo `name` requerido
-- Campos `serialNumber`, `firmwareVersion` y `description` opcionales con longitud máxima de 250 caracteres
-- Campo `status` opcional, limitado a valores: 'active', 'inactive', 'maintenance'
-- Campo `measuringPointId` requerido y debe ser un MongoDB ObjectId válido
+#### Boards
+- `name` field required
+- `serialNumber`, `firmwareVersion`, and `description` fields optional with maximum length of 250 characters
+- `status` field optional, limited to values: 'active', 'inactive', 'maintenance'
+- `measuringPointId` field required and must be a valid MongoDB ObjectId
 
-#### Sensores
-- Campo `name` requerido
-- Campo `type` requerido, limitado a los valores definidos en SensorType (TEMPERATURE, HUMIDITY, PH)
-- Campo `unit` opcional con longitud máxima de 250 caracteres
-- Campos `minValue` y `maxValue` opcionales, deben ser números (maxValue debe ser mayor que minValue)
-- Campo `description` opcional con longitud máxima de 250 caracteres
-- Campo `status` opcional, limitado a valores: 'active', 'inactive', 'maintenance'
-- Campo `boardId` requerido y debe ser un MongoDB ObjectId válido
+#### Sensors
+- `name` field required
+- `type` field required, limited to the values defined in SensorType (TEMPERATURE, HUMIDITY, PH)
+- `unit` field optional with maximum length of 250 characters
+- `minValue` and `maxValue` fields optional, must be numbers (maxValue must be greater than minValue)
+- `description` field optional with maximum length of 250 characters
+- `status` field optional, limited to values: 'active', 'inactive', 'maintenance'
+- `boardId` field required and must be a valid MongoDB ObjectId
 
-### Respuestas de error
+### Error responses
 
-Las validaciones fallidas devuelven respuestas con código de estado 400 (Bad Request) y un objeto JSON con los detalles de los errores:
+Failed validations return responses with status code 400 (Bad Request) and a JSON object with error details:
 
 ```json
 {
   "errors": [
     {
       "type": "field",
-      "value": "valor-inválido",
-      "msg": "Mensaje de error descriptivo",
-      "path": "nombre-del-campo",
+      "value": "invalid-value",
+      "msg": "Descriptive error message",
+      "path": "field-name",
       "location": "body"
     }
   ]
 }
 ```
 
-## Licencia
+## License
 
 ISC 
 
-## Documentación de la API
+## API Documentation
 
-La API está documentada utilizando Swagger/OpenAPI. Puede acceder a la documentación interactiva en:
+The API is documented using Swagger/OpenAPI. You can access the interactive documentation at:
 
 ```
 http://localhost:8090/api-docs
 ```
 
-La documentación proporciona:
-- Descripción detallada de todos los endpoints
-- Esquemas de datos para todas las entidades
-- Posibilidad de probar los endpoints directamente desde el navegador
-- Ejemplos de solicitudes y respuestas
+The documentation provides:
+- Detailed description of all endpoints
+- Data schemas for all entities
+- Ability to test endpoints directly from the browser
+- Examples of requests and responses
 
-También puede obtener la especificación OpenAPI en formato JSON en:
+You can also get the OpenAPI specification in JSON format at:
 
 ```
 http://localhost:8090/swagger.json
 ```
 
-### Entidades principales
+### Main Entities
 
-La API sigue una jerarquía de entidades:
+The API follows a hierarchy of entities:
 
-1. **Organizations** (Organizaciones)
-2. **Sites** (Sitios)
-3. **Measuring Points** (Puntos de Medición)
-4. **Boards** (Placas/Dispositivos)
-5. **Sensors** (Sensores)
+1. **Organizations**
+2. **Sites**
+3. **Measuring Points**
+4. **Boards**
+5. **Sensors**
 
-Cada nivel puede tener cero o más entidades del nivel siguiente.
+Each level can have zero or more entities of the next level.
 
-#### Tipos de sensores disponibles
+#### Available Sensor Types
 
-Los sensores pueden ser de los siguientes tipos:
-- `TEMPERATURE` - Sensor de temperatura
-- `HUMIDITY` - Sensor de humedad
-- `PH` - Sensor de pH 
+Sensors can be of the following types:
+- `TEMPERATURE` - Temperature sensor
+- `HUMIDITY` - Humidity sensor
+- `PH` - pH sensor 
