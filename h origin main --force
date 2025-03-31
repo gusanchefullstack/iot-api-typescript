@@ -1,0 +1,16 @@
+[33mcommit e49dfb7ec6b73817418958196fbc6c74cea0c8ab[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Gustavo Sanchez <gustavosanchezgalarza@gmail.com>
+Date:   Sun Mar 30 19:19:19 2025 -0500
+
+    Añadir documentación de API utilizando Swagger para todas las entidades
+
+README.md
+package.json
+prisma/seed.ts
+src/config/swagger.ts
+src/index.ts
+src/routes/boardRoutes.ts
+src/routes/measuringPointRoutes.ts
+src/routes/organizationRoutes.ts
+src/routes/sensorRoutes.ts
+src/routes/siteRoutes.ts

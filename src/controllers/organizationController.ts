@@ -6,7 +6,7 @@ export const getAllOrganizations = async (req: Request, res: Response) => {
   try {
     const organizations = await prisma.organization.findMany();
     res.json(organizations);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al obtener organizaciones:', error);
     res.status(500).json({ error: 'Error al obtener organizaciones' });
   }
@@ -26,7 +26,7 @@ export const getOrganizationById = async (req: Request, res: Response) => {
     }
 
     res.json(organization);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al obtener la organización:', error);
     res.status(500).json({ error: 'Error al obtener la organización' });
   }
@@ -37,10 +37,6 @@ export const createOrganization = async (req: Request, res: Response) => {
   try {
     const { name, description } = req.body;
     
-    if (!name) {
-      return res.status(400).json({ error: 'El nombre de la organización es requerido' });
-    }
-
     const organization = await prisma.organization.create({
       data: {
         name,
@@ -49,7 +45,7 @@ export const createOrganization = async (req: Request, res: Response) => {
     });
 
     res.status(201).json(organization);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al crear la organización:', error);
     res.status(500).json({ error: 'Error al crear la organización' });
   }
@@ -61,21 +57,23 @@ export const updateOrganization = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, description } = req.body;
 
-    if (!name) {
-      return res.status(400).json({ error: 'El nombre de la organización es requerido' });
-    }
-
     const updatedOrganization = await prisma.organization.update({
       where: { id },
       data: {
-        name,
-        description
+        ...(name && { name }),
+        ...(description !== undefined && { description })
       }
     });
 
     res.json(updatedOrganization);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al actualizar la organización:', error);
+    
+    // Verificar si es un error de registro no encontrado
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Organización no encontrada' });
+    }
+    
     res.status(500).json({ error: 'Error al actualizar la organización' });
   }
 };
@@ -90,8 +88,14 @@ export const deleteOrganization = async (req: Request, res: Response) => {
     });
 
     res.json({ message: 'Organización eliminada correctamente' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al eliminar la organización:', error);
+    
+    // Verificar si es un error de registro no encontrado
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Organización no encontrada' });
+    }
+    
     res.status(500).json({ error: 'Error al eliminar la organización' });
   }
 }; 

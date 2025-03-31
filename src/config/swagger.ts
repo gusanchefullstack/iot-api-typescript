@@ -39,11 +39,13 @@ const options: swaggerJSDoc.Options = {
               type: 'string',
               description: 'Nombre de la organización',
               example: 'Industrias XYZ',
+              maxLength: 250
             },
             description: {
               type: 'string',
               description: 'Descripción de la organización',
               example: 'Empresa dedicada a la fabricación de maquinaria industrial',
+              maxLength: 250
             },
             createdAt: {
               type: 'string',
@@ -70,16 +72,19 @@ const options: swaggerJSDoc.Options = {
               type: 'string',
               description: 'Nombre del sitio',
               example: 'Planta Madrid',
+              maxLength: 250
             },
             description: {
               type: 'string',
               description: 'Descripción del sitio',
               example: 'Planta principal de fabricación en Madrid',
+              maxLength: 250
             },
             location: {
               type: 'string',
               description: 'Ubicación del sitio',
               example: 'Madrid, España',
+              maxLength: 250
             },
             organizationId: {
               type: 'string',
@@ -274,6 +279,54 @@ const options: swaggerJSDoc.Options = {
               example: 'Recurso no encontrado',
             },
           },
+        },
+        ValidationError: {
+          type: 'object',
+          properties: {
+            errors: {
+              type: 'array',
+              description: 'Lista de errores de validación',
+              items: {
+                type: 'object',
+                properties: {
+                  type: {
+                    type: 'string',
+                    description: 'Tipo de error',
+                    example: 'field'
+                  },
+                  value: {
+                    type: 'string',
+                    description: 'Valor que causó el error',
+                    example: 'texto-muy-largo'
+                  },
+                  msg: {
+                    type: 'string',
+                    description: 'Mensaje de error',
+                    example: 'El nombre no puede exceder los 250 caracteres'
+                  },
+                  path: {
+                    type: 'string',
+                    description: 'Campo que causó el error',
+                    example: 'name'
+                  },
+                  location: {
+                    type: 'string',
+                    description: 'Ubicación del error (body, params, query, etc.)',
+                    example: 'body'
+                  }
+                }
+              },
+              example: [
+                {
+                  "type": "field",
+                  "value": "texto-muy-largo-que-excede-el-limite-permitido",
+                  "msg": "El nombre no puede exceder los 250 caracteres",
+                  "path": "name",
+                  "location": "body"
+                }
+              ]
+            }
+          }
         },
       },
     },
