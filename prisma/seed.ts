@@ -56,6 +56,11 @@ async function createOrganizations() {
     const organization = await prisma.organization.create({
       data: {
         name: faker.company.name(),
+        country: faker.location.country(),
+        state: faker.location.state(),
+        city: faker.location.city(),
+        address: faker.location.street(),
+        zipcode: faker.location.zipCode(),
         description: faker.company.catchPhrase()
       }
     });
@@ -98,7 +103,8 @@ async function createMeasuringPoints(sites: Site[]) {
             latitude: faker.location.latitude(),
             longitude: faker.location.longitude()
           },
-          siteId: site.id
+          siteId: site.id,
+          organizationId: site.organizationId
         }
       });
       measuringPoints.push(measuringPoint);
@@ -123,7 +129,8 @@ async function createBoards(measuringPoints: MeasuringPoint[]) {
           firmwareVersion: `v${faker.system.semver()}`,
           description: faker.lorem.sentence(),
           status,
-          measuringPointId: measuringPoint.id
+          measuringPointId: measuringPoint.id,
+          organizationId: measuringPoint.organizationId
         }
       });
       boards.push(board);
@@ -182,7 +189,8 @@ async function createSensors(boards: Board[]) {
           maxValue: maxValues[type],
           description: faker.lorem.sentence(),
           status,
-          boardId: board.id
+          boardId: board.id,
+          organizationId: board.organizationId
         }
       });
     }

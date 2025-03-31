@@ -1,14 +1,16 @@
 import { Request, Response } from 'express';
-import prisma from '../config/prisma';
+import { PrismaClient } from '@prisma/client';
+import { ObjectId } from 'mongodb';
+
+const prisma = new PrismaClient();
 
 // Obtener todas las organizaciones
 export const getAllOrganizations = async (req: Request, res: Response) => {
   try {
     const organizations = await prisma.organization.findMany();
     res.json(organizations);
-  } catch (error: any) {
-    console.error('Error getting organizations:', error);
-    res.status(500).json({ error: 'Error getting organizations' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener las organizaciones' });
   }
 };
 
@@ -16,39 +18,47 @@ export const getAllOrganizations = async (req: Request, res: Response) => {
 export const getOrganizationById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID de organización inválido' });
+    }
+
     const organization = await prisma.organization.findUnique({
       where: { id },
-      include: { sites: true }
     });
 
     if (!organization) {
-      return res.status(404).json({ error: 'Organization not found' });
+      return res.status(404).json({ message: 'Organización no encontrada' });
     }
 
     res.json(organization);
-  } catch (error: any) {
-    console.error('Error getting organization:', error);
-    res.status(500).json({ error: 'Error getting organization' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener la organización' });
   }
 };
 
 // Crear una nueva organización
 export const createOrganization = async (req: Request, res: Response) => {
   try {
-    const { name, description } = req.body;
-    
+    const { name, country, state, city, address, zipcode } = req.body;
+
+    if (!name || !country || !state || !city || !address || !zipcode) {
+      return res.status(400).json({ message: 'Todos los campos son requeridos' });
+    }
+
     const organization = await prisma.organization.create({
       data: {
         name,
-        description
-      }
+        country,
+        state,
+        city,
+        address,
+        zipcode,
+      },
     });
 
     res.status(201).json(organization);
-  } catch (error: any) {
-    console.error('Error creating organization:', error);
-    res.status(500).json({ error: 'Error creating organization' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al crear la organización' });
   }
 };
 
@@ -56,28 +66,30 @@ export const createOrganization = async (req: Request, res: Response) => {
 export const updateOrganization = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, description } = req.body;
-    
-    const organizationExists = await prisma.organization.findUnique({
-      where: { id }
-    });
-
-    if (!organizationExists) {
-      return res.status(404).json({ error: 'Organization not found' });
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID de organización inválido' });
     }
 
-    const updatedOrganization = await prisma.organization.update({
+    const { name, country, state, city, address, zipcode } = req.body;
+
+    const organization = await prisma.organization.update({
       where: { id },
       data: {
         name,
-        description
-      }
+        country,
+        state,
+        city,
+        address,
+        zipcode,
+      },
     });
 
-    res.json(updatedOrganization);
-  } catch (error: any) {
-    console.error('Error updating organization:', error);
-    res.status(500).json({ error: 'Error updating organization' });
+    res.json(organization);
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Organización no encontrada' });
+    }
+    res.status(500).json({ message: 'Error al actualizar la organización' });
   }
 };
 
@@ -85,22 +97,19 @@ export const updateOrganization = async (req: Request, res: Response) => {
 export const deleteOrganization = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
-    const organizationExists = await prisma.organization.findUnique({
-      where: { id }
-    });
-
-    if (!organizationExists) {
-      return res.status(404).json({ error: 'Organization not found' });
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID de organización inválido' });
     }
 
     await prisma.organization.delete({
-      where: { id }
+      where: { id },
     });
 
-    res.json({ message: 'Organization successfully deleted' });
-  } catch (error: any) {
-    console.error('Error deleting organization:', error);
-    res.status(500).json({ error: 'Error deleting organization' });
+    res.json({ message: 'Organización eliminada exitosamente' });
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Organización no encontrada' });
+    }
+    res.status(500).json({ message: 'Error al eliminar la organización' });
   }
 }; 

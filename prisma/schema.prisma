@@ -14,12 +14,21 @@ datasource db {
 }
 
 model Organization {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  sites       Site[]
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  country         String
+  state           String
+  city            String
+  address         String
+  zipcode         String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  sites           Site[]
+  sensors         Sensor[]
+  boards          Board[]
+  measuringPoints MeasuringPoint[]
+
+  @@map("organizations")
 }
 
 model Site {
@@ -35,15 +44,17 @@ model Site {
 }
 
 model MeasuringPoint {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String?
-  coordinates Json? // Para almacenar latitud y longitud
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  site        Site     @relation(fields: [siteId], references: [id])
-  siteId      String   @db.ObjectId
-  boards      Board[]
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  description    String?
+  coordinates    Json? // Para almacenar latitud y longitud
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  site           Site          @relation(fields: [siteId], references: [id])
+  siteId         String        @db.ObjectId
+  boards         Board[]
+  Organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?       @db.ObjectId
 }
 
 model Board {
@@ -58,6 +69,8 @@ model Board {
   measuringPoint   MeasuringPoint @relation(fields: [measuringPointId], references: [id])
   measuringPointId String         @db.ObjectId
   sensors          Sensor[]
+  Organization     Organization?  @relation(fields: [organizationId], references: [id])
+  organizationId   String?        @db.ObjectId
 }
 
 enum SensorType {
@@ -67,16 +80,18 @@ enum SensorType {
 }
 
 model Sensor {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  type        SensorType // Usando el enum para restringir los valores
-  unit        String? // °C, %, etc.
-  minValue    Float?
-  maxValue    Float?
-  description String?
-  status      String? // active, inactive, maintenance
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  board       Board      @relation(fields: [boardId], references: [id])
-  boardId     String     @db.ObjectId
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  type           SensorType // Usando el enum para restringir los valores
+  unit           String? // °C, %, etc.
+  minValue       Float?
+  maxValue       Float?
+  description    String?
+  status         String? // active, inactive, maintenance
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  board          Board         @relation(fields: [boardId], references: [id])
+  boardId        String        @db.ObjectId
+  Organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?       @db.ObjectId
 }
