@@ -142,3 +142,42 @@ npm start
 ## Licencia
 
 ISC 
+
+## Documentación de la API
+
+La API está documentada utilizando Swagger/OpenAPI. Puede acceder a la documentación interactiva en:
+
+```
+http://localhost:8090/api-docs
+```
+
+La documentación proporciona:
+- Descripción detallada de todos los endpoints
+- Esquemas de datos para todas las entidades
+- Posibilidad de probar los endpoints directamente desde el navegador
+- Ejemplos de solicitudes y respuestas
+
+También puede obtener la especificación OpenAPI en formato JSON en:
+
+```
+http://localhost:8090/swagger.json
+```
+
+### Entidades principales
+
+La API sigue una jerarquía de entidades:
+
+1. **Organizations** (Organizaciones)
+2. **Sites** (Sitios)
+3. **Measuring Points** (Puntos de Medición)
+4. **Boards** (Placas/Dispositivos)
+5. **Sensors** (Sensores)
+
+Cada nivel puede tener cero o más entidades del nivel siguiente.
+
+#### Tipos de sensores disponibles
+
+Los sensores pueden ser de los siguientes tipos:
+- `TEMPERATURE` - Sensor de temperatura
+- `HUMIDITY` - Sensor de humedad
+- `PH` - Sensor de pH 
