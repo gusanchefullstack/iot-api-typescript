@@ -82,15 +82,36 @@ router.get('/:id', organizationController.getOrganizationById);
  *             type: object
  *             required:
  *               - name
+ *               - country
+ *               - state
+ *               - city
+ *               - address
+ *               - zipcode
  *             properties:
  *               name:
  *                 type: string
  *                 description: Organization name
  *                 maxLength: 250
- *               description:
+ *               country:
  *                 type: string
- *                 description: Organization description
- *                 maxLength: 500
+ *                 description: Organization country
+ *                 maxLength: 100
+ *               state:
+ *                 type: string
+ *                 description: Organization state/province
+ *                 maxLength: 100
+ *               city:
+ *                 type: string
+ *                 description: Organization city
+ *                 maxLength: 100
+ *               address:
+ *                 type: string
+ *                 description: Organization address
+ *                 maxLength: 250
+ *               zipcode:
+ *                 type: string
+ *                 description: Organization zip code
+ *                 maxLength: 20
  *     responses:
  *       201:
  *         description: Organization created successfully
@@ -137,10 +158,26 @@ router.post('/', organizationController.createOrganization);
  *                 type: string
  *                 description: Organization name
  *                 maxLength: 250
- *               description:
+ *               country:
  *                 type: string
- *                 description: Organization description
- *                 maxLength: 500
+ *                 description: Organization country
+ *                 maxLength: 100
+ *               state:
+ *                 type: string
+ *                 description: Organization state/province
+ *                 maxLength: 100
+ *               city:
+ *                 type: string
+ *                 description: Organization city
+ *                 maxLength: 100
+ *               address:
+ *                 type: string
+ *                 description: Organization address
+ *                 maxLength: 250
+ *               zipcode:
+ *                 type: string
+ *                 description: Organization zip code
+ *                 maxLength: 20
  *     responses:
  *       200:
  *         description: Organization updated successfully

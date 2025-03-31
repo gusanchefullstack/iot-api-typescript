@@ -61,7 +61,6 @@ async function createOrganizations() {
         city: faker.location.city(),
         address: faker.location.street(),
         zipcode: faker.location.zipCode(),
-        description: faker.company.catchPhrase()
       }
     });
     organizations.push(organization);

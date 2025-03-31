@@ -28,7 +28,7 @@ const options: swaggerJSDoc.Options = {
       schemas: {
         Organization: {
           type: 'object',
-          required: ['name'],
+          required: ['name', 'country', 'state', 'city', 'address', 'zipcode'],
           properties: {
             id: {
               type: 'string',
@@ -41,11 +41,35 @@ const options: swaggerJSDoc.Options = {
               example: 'Industrias XYZ',
               maxLength: 250
             },
-            description: {
+            country: {
               type: 'string',
-              description: 'Descripción de la organización',
-              example: 'Empresa dedicada a la fabricación de maquinaria industrial',
+              description: 'País de la organización',
+              example: 'España',
+              maxLength: 100
+            },
+            state: {
+              type: 'string',
+              description: 'Estado/Provincia de la organización',
+              example: 'Madrid',
+              maxLength: 100
+            },
+            city: {
+              type: 'string',
+              description: 'Ciudad de la organización',
+              example: 'Madrid',
+              maxLength: 100
+            },
+            address: {
+              type: 'string',
+              description: 'Dirección de la organización',
+              example: 'Calle Mayor 123',
               maxLength: 250
+            },
+            zipcode: {
+              type: 'string',
+              description: 'Código postal de la organización',
+              example: '28001',
+              maxLength: 20
             },
             createdAt: {
               type: 'string',
