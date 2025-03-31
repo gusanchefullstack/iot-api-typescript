@@ -20,7 +20,7 @@ export const createOrganizationValidation: RequestHandler[] = [
     .notEmpty().withMessage('El nombre de la organización es requerido')
     .isLength({ max: 250 }).withMessage('El nombre no puede exceder los 250 caracteres'),
   body('description')
-    .optional()
+    .notEmpty()
     .isLength({ max: 250 }).withMessage('La descripción no puede exceder los 250 caracteres'),
   handleValidationErrors
 ];
