@@ -1,5 +1,10 @@
 import { Router } from 'express';
 import * as measuringPointController from '../controllers/measuringPointController';
+import {
+  createMeasuringPointValidation,
+  updateMeasuringPointValidation,
+  validateMongoId
+} from '../middleware/measuringPointValidation';
 
 const router = Router();
 
@@ -49,6 +54,12 @@ router.get('/', measuringPointController.getAllMeasuringPoints);
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/MeasuringPoint'
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       500:
  *         description: Error del servidor
  *         content:
@@ -56,7 +67,7 @@ router.get('/', measuringPointController.getAllMeasuringPoints);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/site/:siteId', measuringPointController.getMeasuringPointsBySite);
+router.get('/site/:siteId', validateMongoId('siteId'), measuringPointController.getMeasuringPointsBySite);
 
 /**
  * @swagger
@@ -78,6 +89,12 @@ router.get('/site/:siteId', measuringPointController.getMeasuringPointsBySite);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/MeasuringPoint'
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Punto de medición no encontrado
  *         content:
@@ -91,7 +108,7 @@ router.get('/site/:siteId', measuringPointController.getMeasuringPointsBySite);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', measuringPointController.getMeasuringPointById);
+router.get('/:id', validateMongoId(), measuringPointController.getMeasuringPointById);
 
 /**
  * @swagger
@@ -112,9 +129,11 @@ router.get('/:id', measuringPointController.getMeasuringPointById);
  *               name:
  *                 type: string
  *                 description: Nombre del punto de medición
+ *                 maxLength: 250
  *               description:
  *                 type: string
  *                 description: Descripción del punto de medición
+ *                 maxLength: 250
  *               coordinates:
  *                 type: object
  *                 properties:
@@ -139,7 +158,7 @@ router.get('/:id', measuringPointController.getMeasuringPointById);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Sitio no encontrado
  *         content:
@@ -153,7 +172,7 @@ router.get('/:id', measuringPointController.getMeasuringPointById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', measuringPointController.createMeasuringPoint);
+router.post('/', createMeasuringPointValidation, measuringPointController.createMeasuringPoint);
 
 /**
  * @swagger
@@ -174,15 +193,15 @@ router.post('/', measuringPointController.createMeasuringPoint);
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - name
  *             properties:
  *               name:
  *                 type: string
  *                 description: Nombre del punto de medición
+ *                 maxLength: 250
  *               description:
  *                 type: string
  *                 description: Descripción del punto de medición
+ *                 maxLength: 250
  *               coordinates:
  *                 type: object
  *                 properties:
@@ -204,7 +223,7 @@ router.post('/', measuringPointController.createMeasuringPoint);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Punto de medición no encontrado
  *         content:
@@ -218,7 +237,7 @@ router.post('/', measuringPointController.createMeasuringPoint);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', measuringPointController.updateMeasuringPoint);
+router.put('/:id', validateMongoId(), updateMeasuringPointValidation, measuringPointController.updateMeasuringPoint);
 
 /**
  * @swagger
@@ -244,6 +263,12 @@ router.put('/:id', measuringPointController.updateMeasuringPoint);
  *                 message:
  *                   type: string
  *                   example: Punto de medición eliminado correctamente
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Punto de medición no encontrado
  *         content:
@@ -257,6 +282,6 @@ router.put('/:id', measuringPointController.updateMeasuringPoint);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', measuringPointController.deleteMeasuringPoint);
+router.delete('/:id', validateMongoId(), measuringPointController.deleteMeasuringPoint);
 
 export default router; 

@@ -1,5 +1,10 @@
 import { Router } from 'express';
 import * as sensorController from '../controllers/sensorController';
+import {
+  createSensorValidation,
+  updateSensorValidation,
+  validateMongoId
+} from '../middleware/sensorValidation';
 
 const router = Router();
 
@@ -74,6 +79,12 @@ router.get('/types', sensorController.getSensorTypes);
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Sensor'
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       500:
  *         description: Error del servidor
  *         content:
@@ -81,7 +92,7 @@ router.get('/types', sensorController.getSensorTypes);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/board/:boardId', sensorController.getSensorsByBoard);
+router.get('/board/:boardId', validateMongoId('boardId'), sensorController.getSensorsByBoard);
 
 /**
  * @swagger
@@ -103,6 +114,12 @@ router.get('/board/:boardId', sensorController.getSensorsByBoard);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Sensor'
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Sensor no encontrado
  *         content:
@@ -116,7 +133,7 @@ router.get('/board/:boardId', sensorController.getSensorsByBoard);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', sensorController.getSensorById);
+router.get('/:id', validateMongoId(), sensorController.getSensorById);
 
 /**
  * @swagger
@@ -138,6 +155,7 @@ router.get('/:id', sensorController.getSensorById);
  *               name:
  *                 type: string
  *                 description: Nombre del sensor
+ *                 maxLength: 250
  *               type:
  *                 type: string
  *                 enum: [TEMPERATURE, HUMIDITY, PH]
@@ -145,6 +163,7 @@ router.get('/:id', sensorController.getSensorById);
  *               unit:
  *                 type: string
  *                 description: Unidad de medida
+ *                 maxLength: 250
  *               minValue:
  *                 type: number
  *                 description: Valor mínimo del rango del sensor
@@ -154,6 +173,7 @@ router.get('/:id', sensorController.getSensorById);
  *               description:
  *                 type: string
  *                 description: Descripción del sensor
+ *                 maxLength: 250
  *               status:
  *                 type: string
  *                 enum: [active, inactive, maintenance]
@@ -173,7 +193,7 @@ router.get('/:id', sensorController.getSensorById);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Placa no encontrada
  *         content:
@@ -187,7 +207,7 @@ router.get('/:id', sensorController.getSensorById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', sensorController.createSensor);
+router.post('/', createSensorValidation, sensorController.createSensor);
 
 /**
  * @swagger
@@ -208,13 +228,11 @@ router.post('/', sensorController.createSensor);
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - name
- *               - type
  *             properties:
  *               name:
  *                 type: string
  *                 description: Nombre del sensor
+ *                 maxLength: 250
  *               type:
  *                 type: string
  *                 enum: [TEMPERATURE, HUMIDITY, PH]
@@ -222,6 +240,7 @@ router.post('/', sensorController.createSensor);
  *               unit:
  *                 type: string
  *                 description: Unidad de medida
+ *                 maxLength: 250
  *               minValue:
  *                 type: number
  *                 description: Valor mínimo del rango del sensor
@@ -231,6 +250,7 @@ router.post('/', sensorController.createSensor);
  *               description:
  *                 type: string
  *                 description: Descripción del sensor
+ *                 maxLength: 250
  *               status:
  *                 type: string
  *                 enum: [active, inactive, maintenance]
@@ -247,7 +267,7 @@ router.post('/', sensorController.createSensor);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Sensor no encontrado
  *         content:
@@ -261,7 +281,7 @@ router.post('/', sensorController.createSensor);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', sensorController.updateSensor);
+router.put('/:id', validateMongoId(), updateSensorValidation, sensorController.updateSensor);
 
 /**
  * @swagger
@@ -287,6 +307,12 @@ router.put('/:id', sensorController.updateSensor);
  *                 message:
  *                   type: string
  *                   example: Sensor eliminado correctamente
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Sensor no encontrado
  *         content:
@@ -300,6 +326,6 @@ router.put('/:id', sensorController.updateSensor);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', sensorController.deleteSensor);
+router.delete('/:id', validateMongoId(), sensorController.deleteSensor);
 
 export default router; 

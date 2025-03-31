@@ -1,5 +1,10 @@
 import { Router } from 'express';
 import * as boardController from '../controllers/boardController';
+import {
+  createBoardValidation,
+  updateBoardValidation,
+  validateMongoId
+} from '../middleware/boardValidation';
 
 const router = Router();
 
@@ -49,6 +54,12 @@ router.get('/', boardController.getAllBoards);
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Board'
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       500:
  *         description: Error del servidor
  *         content:
@@ -56,7 +67,7 @@ router.get('/', boardController.getAllBoards);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/measuring-point/:measuringPointId', boardController.getBoardsByMeasuringPoint);
+router.get('/measuring-point/:measuringPointId', validateMongoId('measuringPointId'), boardController.getBoardsByMeasuringPoint);
 
 /**
  * @swagger
@@ -78,6 +89,12 @@ router.get('/measuring-point/:measuringPointId', boardController.getBoardsByMeas
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Board'
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Placa no encontrada
  *         content:
@@ -91,7 +108,7 @@ router.get('/measuring-point/:measuringPointId', boardController.getBoardsByMeas
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', boardController.getBoardById);
+router.get('/:id', validateMongoId(), boardController.getBoardById);
 
 /**
  * @swagger
@@ -112,15 +129,19 @@ router.get('/:id', boardController.getBoardById);
  *               name:
  *                 type: string
  *                 description: Nombre de la placa
+ *                 maxLength: 250
  *               serialNumber:
  *                 type: string
  *                 description: Número de serie de la placa
+ *                 maxLength: 250
  *               firmwareVersion:
  *                 type: string
  *                 description: Versión del firmware
+ *                 maxLength: 250
  *               description:
  *                 type: string
  *                 description: Descripción de la placa
+ *                 maxLength: 250
  *               status:
  *                 type: string
  *                 enum: [active, inactive, maintenance]
@@ -140,7 +161,7 @@ router.get('/:id', boardController.getBoardById);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Punto de medición no encontrado
  *         content:
@@ -154,7 +175,7 @@ router.get('/:id', boardController.getBoardById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', boardController.createBoard);
+router.post('/', createBoardValidation, boardController.createBoard);
 
 /**
  * @swagger
@@ -175,21 +196,23 @@ router.post('/', boardController.createBoard);
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - name
  *             properties:
  *               name:
  *                 type: string
  *                 description: Nombre de la placa
+ *                 maxLength: 250
  *               serialNumber:
  *                 type: string
  *                 description: Número de serie de la placa
+ *                 maxLength: 250
  *               firmwareVersion:
  *                 type: string
  *                 description: Versión del firmware
+ *                 maxLength: 250
  *               description:
  *                 type: string
  *                 description: Descripción de la placa
+ *                 maxLength: 250
  *               status:
  *                 type: string
  *                 enum: [active, inactive, maintenance]
@@ -206,7 +229,7 @@ router.post('/', boardController.createBoard);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Placa no encontrada
  *         content:
@@ -220,7 +243,7 @@ router.post('/', boardController.createBoard);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', boardController.updateBoard);
+router.put('/:id', validateMongoId(), updateBoardValidation, boardController.updateBoard);
 
 /**
  * @swagger
@@ -246,6 +269,12 @@ router.put('/:id', boardController.updateBoard);
  *                 message:
  *                   type: string
  *                   example: Placa eliminada correctamente
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Placa no encontrada
  *         content:
@@ -259,6 +288,6 @@ router.put('/:id', boardController.updateBoard);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', boardController.deleteBoard);
+router.delete('/:id', validateMongoId(), boardController.deleteBoard);
 
 export default router; 

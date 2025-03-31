@@ -1,5 +1,10 @@
 import { Router } from 'express';
 import * as siteController from '../controllers/siteController';
+import {
+  createSiteValidation,
+  updateSiteValidation,
+  validateMongoId
+} from '../middleware/siteValidation';
 
 const router = Router();
 
@@ -49,6 +54,12 @@ router.get('/', siteController.getAllSites);
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Site'
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       500:
  *         description: Error del servidor
  *         content:
@@ -56,7 +67,7 @@ router.get('/', siteController.getAllSites);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/organization/:organizationId', siteController.getSitesByOrganization);
+router.get('/organization/:organizationId', validateMongoId('organizationId'), siteController.getSitesByOrganization);
 
 /**
  * @swagger
@@ -78,6 +89,12 @@ router.get('/organization/:organizationId', siteController.getSitesByOrganizatio
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Site'
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Sitio no encontrado
  *         content:
@@ -91,7 +108,7 @@ router.get('/organization/:organizationId', siteController.getSitesByOrganizatio
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', siteController.getSiteById);
+router.get('/:id', validateMongoId(), siteController.getSiteById);
 
 /**
  * @swagger
@@ -112,12 +129,15 @@ router.get('/:id', siteController.getSiteById);
  *               name:
  *                 type: string
  *                 description: Nombre del sitio
+ *                 maxLength: 250
  *               description:
  *                 type: string
  *                 description: Descripción del sitio
+ *                 maxLength: 250
  *               location:
  *                 type: string
  *                 description: Ubicación del sitio
+ *                 maxLength: 250
  *               organizationId:
  *                 type: string
  *                 description: ID de la organización a la que pertenece el sitio
@@ -133,7 +153,7 @@ router.get('/:id', siteController.getSiteById);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Organización no encontrada
  *         content:
@@ -147,7 +167,7 @@ router.get('/:id', siteController.getSiteById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', siteController.createSite);
+router.post('/', createSiteValidation, siteController.createSite);
 
 /**
  * @swagger
@@ -168,18 +188,19 @@ router.post('/', siteController.createSite);
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - name
  *             properties:
  *               name:
  *                 type: string
  *                 description: Nombre del sitio
+ *                 maxLength: 250
  *               description:
  *                 type: string
  *                 description: Descripción del sitio
+ *                 maxLength: 250
  *               location:
  *                 type: string
  *                 description: Ubicación del sitio
+ *                 maxLength: 250
  *     responses:
  *       200:
  *         description: Sitio actualizado exitosamente
@@ -192,7 +213,7 @@ router.post('/', siteController.createSite);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Sitio no encontrado
  *         content:
@@ -206,7 +227,7 @@ router.post('/', siteController.createSite);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', siteController.updateSite);
+router.put('/:id', validateMongoId(), updateSiteValidation, siteController.updateSite);
 
 /**
  * @swagger
@@ -232,6 +253,12 @@ router.put('/:id', siteController.updateSite);
  *                 message:
  *                   type: string
  *                   example: Sitio eliminado correctamente
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       404:
  *         description: Sitio no encontrado
  *         content:
@@ -245,6 +272,6 @@ router.put('/:id', siteController.updateSite);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', siteController.deleteSite);
+router.delete('/:id', validateMongoId(), siteController.deleteSite);
 
 export default router; 
