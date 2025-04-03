@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { ObjectId } from 'mongodb';
-import { BoardInput, BoardUpdateInput } from '../schemas/boardSchema';
+import { BoardInput, BoardUpdateInput, BoardStatus } from '../schemas/boardSchema';
 
 const prisma = new PrismaClient();
 
@@ -80,13 +80,21 @@ export const createBoard = async (req: Request<{}, {}, BoardInput>, res: Respons
       return res.status(404).json({ message: 'Punto de medición no encontrado' });
     }
 
+    // Asignar valor por defecto al status si no viene en la petición
+    const status = req.body.status || 'active';
+    
+    // Validar que el status sea uno de los valores permitidos
+    if (!BoardStatus.safeParse(status).success) {
+      return res.status(400).json({ message: 'Estado inválido. Valores permitidos: active, inactive, maintenance' });
+    }
+
     const board = await prisma.board.create({
       data: {
         name: req.body.name,
         serialNumber: req.body.serialNumber,
         firmwareVersion: req.body.firmwareVersion,
         description: req.body.description,
-        status: req.body.status,
+        status,
         measuringPoint: {
           connect: { id: req.body.measuringPointId }
         }
@@ -112,6 +120,11 @@ export const updateBoard = async (req: Request<{ id: string }, {}, BoardUpdateIn
     const { id } = req.params;
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'ID de placa inválido' });
+    }
+
+    // Validar que el status sea uno de los valores permitidos
+    if (req.body.status && !BoardStatus.safeParse(req.body.status).success) {
+      return res.status(400).json({ message: 'Estado inválido. Valores permitidos: active, inactive, maintenance' });
     }
 
     const updateData: any = {};

@@ -437,8 +437,9 @@ export const swaggerSpec = swaggerJSDoc(options);
  *           maxLength: 100
  *         status:
  *           type: string
- *           description: Estado de la placa
+ *           description: Estado de la placa (por defecto 'active')
  *           enum: [active, inactive, maintenance]
+ *           default: active
  *         measuringPointId:
  *           type: string
  *           format: objectId

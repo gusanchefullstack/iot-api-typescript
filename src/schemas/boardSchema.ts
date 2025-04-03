@@ -19,8 +19,12 @@ export const boardSchema = z.object({
     .min(3, 'La descripción debe tener al menos 3 caracteres')
     .max(100, 'La descripción no puede exceder los 100 caracteres')
     .optional(),
-  status: BoardStatus.optional(),
-  measuringPointId: z.string().min(1, 'El ID del punto de medición es requerido'),
+  status: BoardStatus
+    .describe('Estado de la placa: active, inactive, maintenance')
+    .optional()
+    .default('active'),
+  measuringPointId: z.string()
+    .min(1, 'El ID del punto de medición es requerido'),
 });
 
 export const boardUpdateSchema = boardSchema.partial();
