@@ -345,4 +345,71 @@ export const swaggerSpec = swaggerJSDoc(options);
  *         message:
  *           type: string
  *           description: Mensaje de recurso no encontrado
+ *     MeasuringPointInput:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Nombre del punto de medición
+ *           minLength: 3
+ *           maxLength: 100
+ *         description:
+ *           type: string
+ *           description: Descripción del punto de medición
+ *           minLength: 3
+ *           maxLength: 100
+ *         coordinates:
+ *           type: object
+ *           description: Coordenadas geográficas
+ *           properties:
+ *             latitude:
+ *               type: number
+ *               description: Latitud
+ *               minimum: -90
+ *               maximum: 90
+ *             longitude:
+ *               type: number
+ *               description: Longitud
+ *               minimum: -180
+ *               maximum: 180
+ *         siteId:
+ *           type: string
+ *           format: objectId
+ *           description: ID del sitio al que pertenece el punto de medición
+ *       required:
+ *         - name
+ *         - description
+ *         - coordinates
+ *         - siteId
+ *     MeasuringPointUpdateInput:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Nombre del punto de medición
+ *           minLength: 3
+ *           maxLength: 100
+ *         description:
+ *           type: string
+ *           description: Descripción del punto de medición
+ *           minLength: 3
+ *           maxLength: 100
+ *         coordinates:
+ *           type: object
+ *           description: Coordenadas geográficas
+ *           properties:
+ *             latitude:
+ *               type: number
+ *               description: Latitud
+ *               minimum: -90
+ *               maximum: 90
+ *             longitude:
+ *               type: number
+ *               description: Longitud
+ *               minimum: -180
+ *               maximum: 180
+ *         siteId:
+ *           type: string
+ *           format: objectId
+ *           description: ID del sitio al que pertenece el punto de medición
  */ 
