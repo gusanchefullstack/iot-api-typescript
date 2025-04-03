@@ -1,21 +1,21 @@
 import { Request, Response } from 'express';
-import prisma from '../config/prisma';
+import { PrismaClient } from '@prisma/client';
+import { ObjectId } from 'mongodb';
+import { SensorInput, SensorUpdateInput, SensorType, SensorStatus } from '../schemas/sensorSchema';
 
-// Definición del enum SensorType basado en el schema de Prisma
-enum SensorType {
-  TEMPERATURE = 'TEMPERATURE',
-  HUMIDITY = 'HUMIDITY',
-  PH = 'PH'
-}
+const prisma = new PrismaClient();
 
 // Obtener todos los sensores
 export const getAllSensors = async (req: Request, res: Response) => {
   try {
-    const sensors = await prisma.sensor.findMany();
+    const sensors = await prisma.sensor.findMany({
+      include: {
+        board: true,
+      },
+    });
     res.json(sensors);
   } catch (error) {
-    console.error('Error getting sensors:', error);
-    res.status(500).json({ error: 'Error getting sensors' });
+    res.status(500).json({ message: 'Error al obtener los sensores' });
   }
 };
 
@@ -23,15 +23,20 @@ export const getAllSensors = async (req: Request, res: Response) => {
 export const getSensorsByBoard = async (req: Request, res: Response) => {
   try {
     const { boardId } = req.params;
+    if (!ObjectId.isValid(boardId)) {
+      return res.status(400).json({ message: 'ID de placa inválido' });
+    }
     
     const sensors = await prisma.sensor.findMany({
-      where: { boardId }
+      where: { boardId },
+      include: {
+        board: true,
+      },
     });
     
     res.json(sensors);
   } catch (error) {
-    console.error('Error getting sensors by board:', error);
-    res.status(500).json({ error: 'Error getting sensors by board' });
+    res.status(500).json({ message: 'Error al obtener los sensores de la placa' });
   }
 };
 
@@ -39,113 +44,126 @@ export const getSensorsByBoard = async (req: Request, res: Response) => {
 export const getSensorById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID de sensor inválido' });
+    }
     
     const sensor = await prisma.sensor.findUnique({
       where: { id },
       include: { 
-        board: true
+        board: true,
       }
     });
 
     if (!sensor) {
-      return res.status(404).json({ error: 'Sensor not found' });
+      return res.status(404).json({ message: 'Sensor no encontrado' });
     }
 
     res.json(sensor);
   } catch (error) {
-    console.error('Error getting sensor:', error);
-    res.status(500).json({ error: 'Error getting sensor' });
+    res.status(500).json({ message: 'Error al obtener el sensor' });
   }
 };
 
 // Crear un nuevo sensor
-export const createSensor = async (req: Request, res: Response) => {
+export const createSensor = async (req: Request<{}, {}, SensorInput>, res: Response) => {
   try {
-    const { name, description, unit, type, boardId } = req.body;
-    
-    if (!name || !boardId || !type) {
-      return res.status(400).json({ 
-        error: 'Sensor name, board ID, and type are required' 
-      });
-    }
-
-    // Verificar que el tipo de sensor sea válido
-    if (!Object.values(SensorType).includes(type as SensorType)) {
-      return res.status(400).json({
-        error: 'Invalid sensor type. Valid types are: ' + Object.values(SensorType).join(', ')
-      });
-    }
-
     // Verificar que la placa existe
     const boardExists = await prisma.board.findUnique({
-      where: { id: boardId }
+      where: { id: req.body.boardId }
     });
 
     if (!boardExists) {
-      return res.status(404).json({ error: 'Board not found' });
+      return res.status(404).json({ message: 'Placa no encontrada' });
     }
 
-    // Crear el sensor con los datos básicos
+    // Asignar valor por defecto al status si no viene en la petición
+    const status = req.body.status || 'active';
+    
+    // Validación adicional para min/max si ambos están presentes
+    if (req.body.minValue !== undefined && req.body.maxValue !== undefined) {
+      if (req.body.minValue >= req.body.maxValue) {
+        return res.status(400).json({ message: 'El valor máximo debe ser mayor que el valor mínimo' });
+      }
+    }
+
     const sensor = await prisma.sensor.create({
       data: {
-        name,
-        type: type as SensorType,
-        description,
-        unit,
+        name: req.body.name,
+        type: req.body.type,
+        unit: req.body.unit,
+        description: req.body.description,
+        minValue: req.body.minValue,
+        maxValue: req.body.maxValue,
+        status,
         board: {
-          connect: { id: boardId }
+          connect: { id: req.body.boardId }
         }
-      }
+      },
+      include: {
+        board: true,
+      },
     });
 
     res.status(201).json(sensor);
   } catch (error) {
-    console.error('Error creating sensor:', error);
-    res.status(500).json({ error: 'Error creating sensor' });
+    res.status(500).json({ message: 'Error al crear el sensor' });
   }
 };
 
 // Actualizar un sensor
-export const updateSensor = async (req: Request, res: Response) => {
+export const updateSensor = async (req: Request<{ id: string }, {}, SensorUpdateInput>, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, description, unit, type } = req.body;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID de sensor inválido' });
+    }
+
+    // Validación adicional para min/max si ambos están presentes
+    if (req.body.minValue !== undefined && req.body.maxValue !== undefined) {
+      if (req.body.minValue >= req.body.maxValue) {
+        return res.status(400).json({ message: 'El valor máximo debe ser mayor que el valor mínimo' });
+      }
+    }
+
+    const updateData: any = {};
+    if (req.body.name) updateData.name = req.body.name;
+    if (req.body.type) updateData.type = req.body.type;
+    if (req.body.unit) updateData.unit = req.body.unit;
+    if (req.body.description) updateData.description = req.body.description;
+    if (req.body.minValue !== undefined) updateData.minValue = req.body.minValue;
+    if (req.body.maxValue !== undefined) updateData.maxValue = req.body.maxValue;
+    if (req.body.status) updateData.status = req.body.status;
     
-    const sensorExists = await prisma.sensor.findUnique({
-      where: { id }
-    });
-
-    if (!sensorExists) {
-      return res.status(404).json({ error: 'Sensor not found' });
-    }
-
-    // Verificar que el tipo de sensor sea válido si se proporciona
-    if (type && !Object.values(SensorType).includes(type as SensorType)) {
-      return res.status(400).json({
-        error: 'Invalid sensor type. Valid types are: ' + Object.values(SensorType).join(', ')
+    if (req.body.boardId) {
+      // Verificar que la placa existe
+      const boardExists = await prisma.board.findUnique({
+        where: { id: req.body.boardId }
       });
+
+      if (!boardExists) {
+        return res.status(404).json({ message: 'Placa no encontrada' });
+      }
+
+      updateData.board = {
+        connect: { id: req.body.boardId }
+      };
     }
 
-    const updateData: any = {
-      name,
-      description,
-      unit
-    };
-
-    // Añadir el tipo si se proporciona
-    if (type) {
-      updateData.type = type as SensorType;
-    }
-
-    const updatedSensor = await prisma.sensor.update({
+    const sensor = await prisma.sensor.update({
       where: { id },
-      data: updateData
+      data: updateData,
+      include: {
+        board: true,
+      },
     });
 
-    res.json(updatedSensor);
+    res.json(sensor);
   } catch (error) {
-    console.error('Error updating sensor:', error);
-    res.status(500).json({ error: 'Error updating sensor' });
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
+      return res.status(404).json({ message: 'Sensor no encontrado' });
+    }
+    res.status(500).json({ message: 'Error al actualizar el sensor' });
   }
 };
 
@@ -153,33 +171,29 @@ export const updateSensor = async (req: Request, res: Response) => {
 export const deleteSensor = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
-    const sensorExists = await prisma.sensor.findUnique({
-      where: { id }
-    });
-
-    if (!sensorExists) {
-      return res.status(404).json({ error: 'Sensor not found' });
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID de sensor inválido' });
     }
-
+    
     await prisma.sensor.delete({
       where: { id }
     });
 
-    res.json({ message: 'Sensor successfully deleted' });
+    res.json({ message: 'Sensor eliminado exitosamente' });
   } catch (error) {
-    console.error('Error deleting sensor:', error);
-    res.status(500).json({ error: 'Error deleting sensor' });
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
+      return res.status(404).json({ message: 'Sensor no encontrado' });
+    }
+    res.status(500).json({ message: 'Error al eliminar el sensor' });
   }
 };
 
 // Obtener los tipos de sensor
-export const getSensorTypes = async (req: Request, res: Response) => {
+export const getSensorTypes = async (_req: Request, res: Response) => {
   try {
-    // Devolver los tipos de sensor definidos en el enum
-    res.json(Object.values(SensorType));
+    // Devolver los valores del enum de SensorType
+    res.json(Object.values(SensorType.enum));
   } catch (error) {
-    console.error('Error getting sensor types:', error);
-    res.status(500).json({ error: 'Error getting sensor types' });
+    res.status(500).json({ message: 'Error al obtener los tipos de sensor' });
   }
 }; 

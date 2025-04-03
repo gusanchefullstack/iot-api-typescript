@@ -479,4 +479,80 @@ export const swaggerSpec = swaggerJSDoc(options);
  *           type: string
  *           format: objectId
  *           description: ID del punto de medición al que pertenece la placa
+ *     SensorInput:
+ *       type: object
+ *       required:
+ *         - name
+ *         - type
+ *         - unit
+ *         - boardId
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Nombre del sensor
+ *           minLength: 3
+ *           maxLength: 100
+ *         type:
+ *           type: string
+ *           description: Tipo de sensor
+ *           enum: ['TEMPERATURE', 'HUMIDITY', 'PH']
+ *         unit:
+ *           type: string
+ *           description: Unidad de medida (ej: °C, %, pH)
+ *           minLength: 1
+ *           maxLength: 20
+ *         minValue:
+ *           type: number
+ *           description: Valor mínimo del sensor
+ *         maxValue:
+ *           type: number
+ *           description: Valor máximo del sensor
+ *         description:
+ *           type: string
+ *           description: Descripción del sensor
+ *           minLength: 3
+ *           maxLength: 100
+ *         status:
+ *           type: string
+ *           description: Estado del sensor
+ *           enum: ['active', 'inactive', 'maintenance']
+ *           default: active
+ *         boardId:
+ *           type: string
+ *           description: ID de la placa a la que pertenece el sensor
+ *     SensorUpdateInput:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Nombre del sensor
+ *           minLength: 3
+ *           maxLength: 100
+ *         type:
+ *           type: string
+ *           description: Tipo de sensor
+ *           enum: ['TEMPERATURE', 'HUMIDITY', 'PH']
+ *         unit:
+ *           type: string
+ *           description: Unidad de medida (ej: °C, %, pH)
+ *           minLength: 1
+ *           maxLength: 20
+ *         minValue:
+ *           type: number
+ *           description: Valor mínimo del sensor
+ *         maxValue:
+ *           type: number
+ *           description: Valor máximo del sensor
+ *         description:
+ *           type: string
+ *           description: Descripción del sensor
+ *           minLength: 3
+ *           maxLength: 100
+ *         status:
+ *           type: string
+ *           description: Estado del sensor
+ *           enum: ['active', 'inactive', 'maintenance']
+ *         boardId:
+ *           type: string
+ *           description: ID de la placa a la que pertenece el sensor
  */ 
