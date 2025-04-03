@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 import routes from './routes';
-import swaggerSpec from './config/swagger';
+import { swaggerSpec } from './swagger';
 
 // Cargar variables de entorno
 dotenv.config();

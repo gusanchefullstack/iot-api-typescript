@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import * as siteController from '../controllers/siteController';
+import { siteSchema, siteUpdateSchema } from '../schemas/siteSchema';
+import { validateSchema } from '../middleware/validateSchema';
 
 const router = Router();
 
@@ -7,11 +9,11 @@ const router = Router();
  * @swagger
  * /sites:
  *   get:
- *     summary: Get all sites
+ *     summary: Obtener todos los sitios
  *     tags: [Sites]
  *     responses:
  *       200:
- *         description: List of sites
+ *         description: Lista de sitios
  *         content:
  *           application/json:
  *             schema:
@@ -19,11 +21,7 @@ const router = Router();
  *               items:
  *                 $ref: '#/components/schemas/Site'
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
 router.get('/', siteController.getAllSites);
 
@@ -31,7 +29,7 @@ router.get('/', siteController.getAllSites);
  * @swagger
  * /sites/organization/{organizationId}:
  *   get:
- *     summary: Get all sites for an organization
+ *     summary: Obtener todos los sitios de una organización
  *     tags: [Sites]
  *     parameters:
  *       - in: path
@@ -39,10 +37,10 @@ router.get('/', siteController.getAllSites);
  *         schema:
  *           type: string
  *         required: true
- *         description: Organization ID
+ *         description: ID de la organización
  *     responses:
  *       200:
- *         description: List of sites for the organization
+ *         description: Lista de sitios de la organización
  *         content:
  *           application/json:
  *             schema:
@@ -50,17 +48,9 @@ router.get('/', siteController.getAllSites);
  *               items:
  *                 $ref: '#/components/schemas/Site'
  *       400:
- *         description: Invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: ID inválido
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
 router.get('/organization/:organizationId', siteController.getSitesByOrganization);
 
@@ -68,7 +58,7 @@ router.get('/organization/:organizationId', siteController.getSitesByOrganizatio
  * @swagger
  * /sites/{id}:
  *   get:
- *     summary: Get a site by ID
+ *     summary: Obtener un sitio por ID
  *     tags: [Sites]
  *     parameters:
  *       - in: path
@@ -76,32 +66,20 @@ router.get('/organization/:organizationId', siteController.getSitesByOrganizatio
  *         schema:
  *           type: string
  *         required: true
- *         description: Site ID
+ *         description: ID del sitio
  *     responses:
  *       200:
- *         description: Site details
+ *         description: Detalles del sitio
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Site'
  *       400:
- *         description: Invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: ID inválido
  *       404:
- *         description: Site not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFound'
+ *         description: Sitio no encontrado
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
 router.get('/:id', siteController.getSiteById);
 
@@ -109,66 +87,35 @@ router.get('/:id', siteController.getSiteById);
  * @swagger
  * /sites:
  *   post:
- *     summary: Create a new site
+ *     summary: Crear un nuevo sitio
  *     tags: [Sites]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *               - organizationId
- *             properties:
- *               name:
- *                 type: string
- *                 description: Site name
- *                 maxLength: 250
- *               description:
- *                 type: string
- *                 description: Site description
- *                 maxLength: 500
- *               location:
- *                 type: string
- *                 description: Site location
- *                 maxLength: 250
- *               organizationId:
- *                 type: string
- *                 description: ID of the organization this site belongs to
+ *             $ref: '#/components/schemas/SiteInput'
  *     responses:
  *       201:
- *         description: Site created successfully
+ *         description: Sitio creado exitosamente
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Site'
  *       400:
- *         description: Invalid data
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: Datos inválidos
  *       404:
- *         description: Organization not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFound'
+ *         description: Organización no encontrada
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
-router.post('/', siteController.createSite);
+router.post('/', validateSchema(siteSchema), siteController.createSite);
 
 /**
  * @swagger
  * /sites/{id}:
  *   put:
- *     summary: Update a site
+ *     summary: Actualizar un sitio
  *     tags: [Sites]
  *     parameters:
  *       - in: path
@@ -176,59 +123,34 @@ router.post('/', siteController.createSite);
  *         schema:
  *           type: string
  *         required: true
- *         description: Site ID
+ *         description: ID del sitio
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 description: Site name
- *                 maxLength: 250
- *               description:
- *                 type: string
- *                 description: Site description
- *                 maxLength: 500
- *               location:
- *                 type: string
- *                 description: Site location
- *                 maxLength: 250
+ *             $ref: '#/components/schemas/SiteUpdateInput'
  *     responses:
  *       200:
- *         description: Site updated successfully
+ *         description: Sitio actualizado exitosamente
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Site'
  *       400:
- *         description: Invalid data
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: Datos inválidos
  *       404:
- *         description: Site not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFound'
+ *         description: Sitio no encontrado
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
-router.put('/:id', siteController.updateSite);
+router.put('/:id', validateSchema(siteUpdateSchema), siteController.updateSite);
 
 /**
  * @swagger
  * /sites/{id}:
  *   delete:
- *     summary: Delete a site
+ *     summary: Eliminar un sitio
  *     tags: [Sites]
  *     parameters:
  *       - in: path
@@ -236,36 +158,14 @@ router.put('/:id', siteController.updateSite);
  *         schema:
  *           type: string
  *         required: true
- *         description: Site ID
+ *         description: ID del sitio
  *     responses:
  *       200:
- *         description: Site deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Site successfully deleted
- *       400:
- *         description: Invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: Sitio eliminado exitosamente
  *       404:
- *         description: Site not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFound'
+ *         description: Sitio no encontrado
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
 router.delete('/:id', siteController.deleteSite);
 
