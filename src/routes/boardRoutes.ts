@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import * as boardController from '../controllers/boardController';
+import { boardSchema, boardUpdateSchema } from '../schemas/boardSchema';
+import { validateSchema } from '../middleware/validateSchema';
 
 const router = Router();
 
@@ -7,11 +9,11 @@ const router = Router();
  * @swagger
  * /boards:
  *   get:
- *     summary: Get all boards
+ *     summary: Obtener todas las placas
  *     tags: [Boards]
  *     responses:
  *       200:
- *         description: List of boards
+ *         description: Lista de placas
  *         content:
  *           application/json:
  *             schema:
@@ -19,11 +21,7 @@ const router = Router();
  *               items:
  *                 $ref: '#/components/schemas/Board'
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
 router.get('/', boardController.getAllBoards);
 
@@ -31,7 +29,7 @@ router.get('/', boardController.getAllBoards);
  * @swagger
  * /boards/measuring-point/{measuringPointId}:
  *   get:
- *     summary: Get all boards for a measuring point
+ *     summary: Obtener todas las placas de un punto de medición
  *     tags: [Boards]
  *     parameters:
  *       - in: path
@@ -39,10 +37,10 @@ router.get('/', boardController.getAllBoards);
  *         schema:
  *           type: string
  *         required: true
- *         description: Measuring point ID
+ *         description: ID del punto de medición
  *     responses:
  *       200:
- *         description: List of boards for the measuring point
+ *         description: Lista de placas del punto de medición
  *         content:
  *           application/json:
  *             schema:
@@ -50,17 +48,9 @@ router.get('/', boardController.getAllBoards);
  *               items:
  *                 $ref: '#/components/schemas/Board'
  *       400:
- *         description: Invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: ID inválido
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
 router.get('/measuring-point/:measuringPointId', boardController.getBoardsByMeasuringPoint);
 
@@ -68,7 +58,7 @@ router.get('/measuring-point/:measuringPointId', boardController.getBoardsByMeas
  * @swagger
  * /boards/{id}:
  *   get:
- *     summary: Get a board by ID
+ *     summary: Obtener una placa por ID
  *     tags: [Boards]
  *     parameters:
  *       - in: path
@@ -76,32 +66,20 @@ router.get('/measuring-point/:measuringPointId', boardController.getBoardsByMeas
  *         schema:
  *           type: string
  *         required: true
- *         description: Board ID
+ *         description: ID de la placa
  *     responses:
  *       200:
- *         description: Board details
+ *         description: Detalles de la placa
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Board'
  *       400:
- *         description: Invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: ID inválido
  *       404:
- *         description: Board not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFound'
+ *         description: Placa no encontrada
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
 router.get('/:id', boardController.getBoardById);
 
@@ -109,74 +87,35 @@ router.get('/:id', boardController.getBoardById);
  * @swagger
  * /boards:
  *   post:
- *     summary: Create a new board
+ *     summary: Crear una nueva placa
  *     tags: [Boards]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *               - measuringPointId
- *             properties:
- *               name:
- *                 type: string
- *                 description: Board name
- *                 maxLength: 250
- *               serialNumber:
- *                 type: string
- *                 description: Board serial number
- *                 maxLength: 100
- *               firmwareVersion:
- *                 type: string
- *                 description: Board firmware version
- *                 maxLength: 50
- *               description:
- *                 type: string
- *                 description: Board description
- *                 maxLength: 500
- *               status:
- *                 type: string
- *                 description: Board status
- *                 enum: [active, inactive, maintenance]
- *               measuringPointId:
- *                 type: string
- *                 description: ID of the measuring point this board belongs to
+ *             $ref: '#/components/schemas/BoardInput'
  *     responses:
  *       201:
- *         description: Board created successfully
+ *         description: Placa creada exitosamente
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Board'
  *       400:
- *         description: Invalid data
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: Datos inválidos
  *       404:
- *         description: Measuring point not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFound'
+ *         description: Punto de medición no encontrado
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
-router.post('/', boardController.createBoard);
+router.post('/', validateSchema(boardSchema), boardController.createBoard);
 
 /**
  * @swagger
  * /boards/{id}:
  *   put:
- *     summary: Update a board
+ *     summary: Actualizar una placa
  *     tags: [Boards]
  *     parameters:
  *       - in: path
@@ -184,67 +123,34 @@ router.post('/', boardController.createBoard);
  *         schema:
  *           type: string
  *         required: true
- *         description: Board ID
+ *         description: ID de la placa
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 description: Board name
- *                 maxLength: 250
- *               serialNumber:
- *                 type: string
- *                 description: Board serial number
- *                 maxLength: 100
- *               firmwareVersion:
- *                 type: string
- *                 description: Board firmware version
- *                 maxLength: 50
- *               description:
- *                 type: string
- *                 description: Board description
- *                 maxLength: 500
- *               status:
- *                 type: string
- *                 description: Board status
- *                 enum: [active, inactive, maintenance]
+ *             $ref: '#/components/schemas/BoardUpdateInput'
  *     responses:
  *       200:
- *         description: Board updated successfully
+ *         description: Placa actualizada exitosamente
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Board'
  *       400:
- *         description: Invalid data
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: Datos inválidos
  *       404:
- *         description: Board not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFound'
+ *         description: Placa no encontrada
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
-router.put('/:id', boardController.updateBoard);
+router.put('/:id', validateSchema(boardUpdateSchema), boardController.updateBoard);
 
 /**
  * @swagger
  * /boards/{id}:
  *   delete:
- *     summary: Delete a board
+ *     summary: Eliminar una placa
  *     tags: [Boards]
  *     parameters:
  *       - in: path
@@ -252,36 +158,14 @@ router.put('/:id', boardController.updateBoard);
  *         schema:
  *           type: string
  *         required: true
- *         description: Board ID
+ *         description: ID de la placa
  *     responses:
  *       200:
- *         description: Board deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Board successfully deleted
- *       400:
- *         description: Invalid ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
+ *         description: Placa eliminada exitosamente
  *       404:
- *         description: Board not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFound'
+ *         description: Placa no encontrada
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Error del servidor
  */
 router.delete('/:id', boardController.deleteBoard);
 

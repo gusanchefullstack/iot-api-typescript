@@ -1,14 +1,22 @@
 import { Request, Response } from 'express';
-import prisma from '../config/prisma';
+import { PrismaClient } from '@prisma/client';
+import { ObjectId } from 'mongodb';
+import { BoardInput, BoardUpdateInput } from '../schemas/boardSchema';
+
+const prisma = new PrismaClient();
 
 // Obtener todas las placas
 export const getAllBoards = async (req: Request, res: Response) => {
   try {
-    const boards = await prisma.board.findMany();
+    const boards = await prisma.board.findMany({
+      include: {
+        measuringPoint: true,
+        sensors: true,
+      },
+    });
     res.json(boards);
   } catch (error) {
-    console.error('Error getting boards:', error);
-    res.status(500).json({ error: 'Error getting boards' });
+    res.status(500).json({ message: 'Error al obtener las placas' });
   }
 };
 
@@ -16,15 +24,21 @@ export const getAllBoards = async (req: Request, res: Response) => {
 export const getBoardsByMeasuringPoint = async (req: Request, res: Response) => {
   try {
     const { measuringPointId } = req.params;
+    if (!ObjectId.isValid(measuringPointId)) {
+      return res.status(400).json({ message: 'ID de punto de medición inválido' });
+    }
     
     const boards = await prisma.board.findMany({
-      where: { measuringPointId }
+      where: { measuringPointId },
+      include: {
+        measuringPoint: true,
+        sensors: true,
+      },
     });
     
     res.json(boards);
   } catch (error) {
-    console.error('Error getting boards by measuring point:', error);
-    res.status(500).json({ error: 'Error getting boards by measuring point' });
+    res.status(500).json({ message: 'Error al obtener las placas del punto de medición' });
   }
 };
 
@@ -32,6 +46,9 @@ export const getBoardsByMeasuringPoint = async (req: Request, res: Response) => 
 export const getBoardById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID de placa inválido' });
+    }
     
     const board = await prisma.board.findUnique({
       where: { id },
@@ -42,85 +59,100 @@ export const getBoardById = async (req: Request, res: Response) => {
     });
 
     if (!board) {
-      return res.status(404).json({ error: 'Board not found' });
+      return res.status(404).json({ message: 'Placa no encontrada' });
     }
 
     res.json(board);
   } catch (error) {
-    console.error('Error getting board:', error);
-    res.status(500).json({ error: 'Error getting board' });
+    res.status(500).json({ message: 'Error al obtener la placa' });
   }
 };
 
 // Crear una nueva placa
-export const createBoard = async (req: Request, res: Response) => {
+export const createBoard = async (req: Request<{}, {}, BoardInput>, res: Response) => {
   try {
-    const { name, serialNumber, firmwareVersion, description, status, measuringPointId } = req.body;
-    
-    if (!name || !measuringPointId) {
-      return res.status(400).json({ 
-        error: 'Board name and measuring point ID are required' 
-      });
-    }
-
     // Verificar que el punto de medición existe
     const measuringPointExists = await prisma.measuringPoint.findUnique({
-      where: { id: measuringPointId }
+      where: { id: req.body.measuringPointId }
     });
 
     if (!measuringPointExists) {
-      return res.status(404).json({ error: 'Measuring point not found' });
+      return res.status(404).json({ message: 'Punto de medición no encontrado' });
     }
 
     const board = await prisma.board.create({
       data: {
-        name,
-        serialNumber,
-        firmwareVersion,
-        description,
-        status,
+        name: req.body.name,
+        serialNumber: req.body.serialNumber,
+        firmwareVersion: req.body.firmwareVersion,
+        description: req.body.description,
+        status: req.body.status,
         measuringPoint: {
-          connect: { id: measuringPointId }
+          connect: { id: req.body.measuringPointId }
         }
-      }
+      },
+      include: {
+        measuringPoint: true,
+        sensors: true,
+      },
     });
 
     res.status(201).json(board);
   } catch (error) {
-    console.error('Error creating board:', error);
-    res.status(500).json({ error: 'Error creating board' });
+    if (error instanceof Error && 'code' in error && error.code === 'P2002') {
+      return res.status(400).json({ message: 'Ya existe una placa con ese número de serie' });
+    }
+    res.status(500).json({ message: 'Error al crear la placa' });
   }
 };
 
 // Actualizar una placa
-export const updateBoard = async (req: Request, res: Response) => {
+export const updateBoard = async (req: Request<{ id: string }, {}, BoardUpdateInput>, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, serialNumber, firmwareVersion, description, status } = req.body;
-    
-    const boardExists = await prisma.board.findUnique({
-      where: { id }
-    });
-
-    if (!boardExists) {
-      return res.status(404).json({ error: 'Board not found' });
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID de placa inválido' });
     }
 
-    const updatedBoard = await prisma.board.update({
-      where: { id },
-      data: {
-        name,
-        serialNumber,
-        firmwareVersion,
-        description,
-        status
+    const updateData: any = {};
+    if (req.body.name) updateData.name = req.body.name;
+    if (req.body.serialNumber) updateData.serialNumber = req.body.serialNumber;
+    if (req.body.firmwareVersion) updateData.firmwareVersion = req.body.firmwareVersion;
+    if (req.body.description) updateData.description = req.body.description;
+    if (req.body.status) updateData.status = req.body.status;
+    if (req.body.measuringPointId) {
+      // Verificar que el punto de medición existe
+      const measuringPointExists = await prisma.measuringPoint.findUnique({
+        where: { id: req.body.measuringPointId }
+      });
+
+      if (!measuringPointExists) {
+        return res.status(404).json({ message: 'Punto de medición no encontrado' });
       }
+
+      updateData.measuringPoint = {
+        connect: { id: req.body.measuringPointId }
+      };
+    }
+
+    const board = await prisma.board.update({
+      where: { id },
+      data: updateData,
+      include: {
+        measuringPoint: true,
+        sensors: true,
+      },
     });
 
-    res.json(updatedBoard);
+    res.json(board);
   } catch (error) {
-    console.error('Error updating board:', error);
-    res.status(500).json({ error: 'Error updating board' });
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
+      return res.status(404).json({ message: 'Placa no encontrada' });
+    }
+    if (error instanceof Error && 'code' in error && error.code === 'P2002') {
+      return res.status(400).json({ message: 'Ya existe una placa con ese número de serie' });
+    }
+    res.status(500).json({ message: 'Error al actualizar la placa' });
   }
 };
 
@@ -128,22 +160,19 @@ export const updateBoard = async (req: Request, res: Response) => {
 export const deleteBoard = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
-    const boardExists = await prisma.board.findUnique({
-      where: { id }
-    });
-
-    if (!boardExists) {
-      return res.status(404).json({ error: 'Board not found' });
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID de placa inválido' });
     }
-
+    
     await prisma.board.delete({
       where: { id }
     });
 
-    res.json({ message: 'Board successfully deleted' });
+    res.json({ message: 'Placa eliminada exitosamente' });
   } catch (error) {
-    console.error('Error deleting board:', error);
-    res.status(500).json({ error: 'Error deleting board' });
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
+      return res.status(404).json({ message: 'Placa no encontrada' });
+    }
+    res.status(500).json({ message: 'Error al eliminar la placa' });
   }
 }; 

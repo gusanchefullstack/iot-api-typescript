@@ -412,4 +412,70 @@ export const swaggerSpec = swaggerJSDoc(options);
  *           type: string
  *           format: objectId
  *           description: ID del sitio al que pertenece el punto de medición
+ *     BoardInput:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Nombre de la placa
+ *           minLength: 3
+ *           maxLength: 100
+ *         serialNumber:
+ *           type: string
+ *           description: Número de serie de la placa
+ *           minLength: 3
+ *           maxLength: 50
+ *         firmwareVersion:
+ *           type: string
+ *           description: Versión del firmware
+ *           minLength: 1
+ *           maxLength: 20
+ *         description:
+ *           type: string
+ *           description: Descripción de la placa
+ *           minLength: 3
+ *           maxLength: 100
+ *         status:
+ *           type: string
+ *           description: Estado de la placa
+ *           enum: [active, inactive, maintenance]
+ *         measuringPointId:
+ *           type: string
+ *           format: objectId
+ *           description: ID del punto de medición al que pertenece la placa
+ *       required:
+ *         - name
+ *         - serialNumber
+ *         - measuringPointId
+ *     BoardUpdateInput:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Nombre de la placa
+ *           minLength: 3
+ *           maxLength: 100
+ *         serialNumber:
+ *           type: string
+ *           description: Número de serie de la placa
+ *           minLength: 3
+ *           maxLength: 50
+ *         firmwareVersion:
+ *           type: string
+ *           description: Versión del firmware
+ *           minLength: 1
+ *           maxLength: 20
+ *         description:
+ *           type: string
+ *           description: Descripción de la placa
+ *           minLength: 3
+ *           maxLength: 100
+ *         status:
+ *           type: string
+ *           description: Estado de la placa
+ *           enum: [active, inactive, maintenance]
+ *         measuringPointId:
+ *           type: string
+ *           format: objectId
+ *           description: ID del punto de medición al que pertenece la placa
  */ 
